@@ -2,6 +2,7 @@ package edu.java.bot.service.command;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import java.util.List;
 
 public interface Command {
     String getCommandName();
@@ -12,6 +13,6 @@ public interface Command {
         return getCommandName().equals(command);
     }
 
-    SendMessage handle(Update update);
+    SendMessage handle(Update update, List<String> parts);
 
 }

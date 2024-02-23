@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component;
 
     private final TelegramBot bot;
 
-    @Autowired UserMessageProcessor userMessageProcessor;
+    @Autowired
+    private UserMessageProcessor userMessageProcessor;
 
     public LinksRefreshCheckerBot(String token) {
         this.bot = new TelegramBot(token);

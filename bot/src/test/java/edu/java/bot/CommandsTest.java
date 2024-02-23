@@ -3,12 +3,13 @@ package edu.java.bot;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.dao.Dao;
+import edu.java.bot.dao.LinksDao;
 import edu.java.bot.service.command.commands.HelpCommand;
 import edu.java.bot.service.command.commands.ListCommand;
 import edu.java.bot.service.command.commands.StartCommand;
 import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +35,7 @@ class CommandsTest {
     @InjectMocks
     UntrackCommand untrackCommand;
 
-    private final Dao dao = Mockito.mock(Dao.class);
+    private final LinksDao linksDao = Mockito.mock(LinksDao.class);
 
     private Update mockUpdate(String expectedMessage) {
         var update = Mockito.mock(Update.class);
@@ -53,7 +54,7 @@ class CommandsTest {
 
     @Test
     public void listCommandTest() {
-        var res = listCommand.handle(mockUpdate(""));
+        var res = listCommand.handle(mockUpdate(""), List.of(listCommand.getCommandName()));
         Assertions.assertEquals("""
             Tracked links:
             Empty now. But someday it won't be empty.""", res.getParameters().get("text"));
@@ -61,7 +62,7 @@ class CommandsTest {
 
     @Test
     public void helpCommandTest() {
-        var res = helpCommand.handle(mockUpdate(""));
+        var res = helpCommand.handle(mockUpdate(""), List.of(helpCommand.getCommandName()));
         Assertions.assertEquals("""
             List of available commands:
 
@@ -78,53 +79,86 @@ class CommandsTest {
 
     @Test
     public void startCommandTest() {
-        var res = startCommand.handle(mockUpdate(""));
+        var res = startCommand.handle(mockUpdate(""), List.of(startCommand.getCommandName()));
         Assertions.assertEquals("""
             Welcome to the link tracking bot! For more information, type /help.""", res.getParameters().get("text"));
     }
 
     @Test
     public void trackCommandEmptyTest() {
-        var res = trackCommand.handle(mockUpdate("/track"));
+        var res = trackCommand.handle(mockUpdate("/track"), List.of(trackCommand.getCommandName()));
         Assertions.assertEquals("""
             Please, insert link to track in format "/track {link}".""", res.getParameters().get("text"));
     }
 
     @Test
     public void trackCommandSuccessTest() {
-        Mockito.when(dao.saveLink(0L, "somelink")).thenReturn(true);
-        var res = trackCommand.handle(mockUpdate("/track somelink"));
+        Mockito.when(linksDao.saveLink(0L, "https://github.com")).thenReturn(true);
+        var res = trackCommand.handle(
+            mockUpdate("/track https://github.com"),
+            List.of(trackCommand.getCommandName(), "https://github.com")
+        );
         Assertions.assertEquals("""
             Link saved successful.""", res.getParameters().get("text"));
     }
 
     @Test
+    public void trackCommandWrongFormatTest() {
+        Mockito.when(linksDao.saveLink(0L, "somelink")).thenReturn(true);
+        var res = trackCommand.handle(
+            mockUpdate("/track somelink"),
+            List.of(trackCommand.getCommandName(), "somelink")
+        );
+        Assertions.assertEquals("""
+            Wrong link format!""", res.getParameters().get("text"));
+    }
+
+    @Test
     public void trackCommandUnSuccessTest() {
-        Mockito.when(dao.saveLink(0L, "somelink")).thenReturn(false);
-        var res = trackCommand.handle(mockUpdate("/track somelink"));
+        Mockito.when(linksDao.saveLink(0L, "https://github.com")).thenReturn(false);
+        var res = trackCommand.handle(
+            mockUpdate("/track https://github.com"),
+            List.of(trackCommand.getCommandName(), "https://github.com")
+        );
         Assertions.assertEquals("""
             Oops! Link was not saved.""", res.getParameters().get("text"));
     }
 
     @Test
     public void untrackCommandEmptyTest() {
-        var res = untrackCommand.handle(mockUpdate("/untrack"));
+        var res = untrackCommand.handle(mockUpdate("/untrack"), List.of(untrackCommand.getCommandName()));
         Assertions.assertEquals("""
-            Please, insert link to remove in format "/track {link}".""", res.getParameters().get("text"));
+            Please, insert link to remove in format "/untrack {link}".""", res.getParameters().get("text"));
     }
 
     @Test
     public void untrackCommandSuccessTest() {
-        Mockito.when(dao.removeLink(0L, "somelink")).thenReturn(true);
-        var res = untrackCommand.handle(mockUpdate("/untrack somelink"));
+        Mockito.when(linksDao.removeLink(0L, "https://github.com")).thenReturn(true);
+        var res = untrackCommand.handle(
+            mockUpdate("/untrack https://github.com"),
+            List.of(untrackCommand.getCommandName(), "https://github.com")
+        );
         Assertions.assertEquals("""
             Link removed successful.""", res.getParameters().get("text"));
     }
 
     @Test
+    public void untrackCommandWrongFormatTest() {
+        var res = untrackCommand.handle(
+            mockUpdate("/untrack somelink"),
+            List.of(untrackCommand.getCommandName(), "somelink")
+        );
+        Assertions.assertEquals("""
+            Wrong link format!""", res.getParameters().get("text"));
+    }
+
+    @Test
     public void untrackCommandUnSuccessTest() {
-        Mockito.when(dao.removeLink(0L, "somelink")).thenReturn(false);
-        var res = untrackCommand.handle(mockUpdate("/untrack somelink"));
+        Mockito.when(linksDao.removeLink(0L, "https://github.com")).thenReturn(false);
+        var res = untrackCommand.handle(
+            mockUpdate("/untrack https://github.com"),
+            List.of(untrackCommand.getCommandName(), "https://github.com")
+        );
         Assertions.assertEquals("""
             Oops! Link was not removed.""", res.getParameters().get("text"));
     }

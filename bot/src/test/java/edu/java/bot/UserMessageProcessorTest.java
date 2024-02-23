@@ -10,6 +10,7 @@ import edu.java.bot.service.command.commands.StartCommand;
 import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
 import edu.java.bot.service.processor.UserMessageProcessor;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -32,14 +33,19 @@ class UserMessageProcessorTest {
     private final TrackCommand trackCommand = mock(TrackCommand.class);
     private final UntrackCommand untrackCommand = mock(UntrackCommand.class);
 
-    private Update mockUpdate(String expectedMessage) {
-        var update = Mockito.mock(Update.class);
-        var message = Mockito.mock(Message.class);
-        var chat = Mockito.mock(Chat.class);
+    {
+        when(helpCommand.getCommandName()).thenReturn("/help");
+        when(listCommand.getCommandName()).thenReturn("/list");
+        when(startCommand.getCommandName()).thenReturn("/start");
+        when(trackCommand.getCommandName()).thenReturn("/track");
+        when(untrackCommand.getCommandName()).thenReturn("/untrack");
+    }
 
-        Mockito.when(update.message()).thenReturn(message);
-        Mockito.when(message.chat()).thenReturn(chat);
-        Mockito.when(chat.id()).thenReturn(0L);
+    private Update mockUpdate(String expectedMessage) {
+        var update = mock(Update.class);
+        var message = mock(Message.class);
+        var chat = mock(Chat.class);
+
         Mockito.when(update.message()).thenReturn(message);
         Mockito.when(message.chat()).thenReturn(chat);
         Mockito.when(message.text()).thenReturn(expectedMessage);
@@ -51,7 +57,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorHelpTest() {
         var update = mockUpdate("/help");
         var expected = new SendMessage(0L, "help was called");
-        when(helpCommand.handle(update)).thenReturn(expected);
+        when(helpCommand.handle(update, List.of("/help"))).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -60,7 +66,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorListTest() {
         var update = mockUpdate("/list");
         var expected = new SendMessage(0L, "list was called");
-        when(listCommand.handle(update)).thenReturn(expected);
+        when(listCommand.handle(update, List.of("/list"))).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -69,7 +75,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorStartTest() {
         var update = mockUpdate("/start");
         var expected = new SendMessage(0L, "start was called");
-        when(startCommand.handle(update)).thenReturn(expected);
+        when(startCommand.handle(update, List.of("/start"))).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -78,7 +84,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorTrackTest() {
         var update = mockUpdate("/track something");
         var expected = new SendMessage(0L, "track was called");
-        when(trackCommand.handle(update)).thenReturn(expected);
+        when(trackCommand.handle(update, List.of("/track", "something"))).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -87,7 +93,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorUntrackTest() {
         var update = mockUpdate("/untrack something");
         var expected = new SendMessage(0L, "untrack was called");
-        when(untrackCommand.handle(update)).thenReturn(expected);
+        when(untrackCommand.handle(update, List.of("/untrack", "something"))).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
