@@ -38,14 +38,21 @@ public class UserMessageProcessor {
 
     public SendMessage process(Update update) {
         if (update.message() != null) {
+            if (update.message().text() == null) {
+                return unknownCommand(update);
+            }
             var messages = update.message().text().split(" ");
             var message = messages[0];
             if (commands.containsKey(message)) {
                 var command = commands.get(message);
                 return command.handle(update, Arrays.stream(messages).toList());
             }
-            return new SendMessage(update.message().chat().id(), "Unknown command");
+            return unknownCommand(update);
         }
         return null;
+    }
+
+    private SendMessage unknownCommand(Update update) {
+        return new SendMessage(update.message().chat().id(), "Unknown command");
     }
 }
