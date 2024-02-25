@@ -9,30 +9,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GitHubClient extends AbstractClient<GitHubUpdateDto> {
-    private final LinksToUpdateDao linksToUpdateDao;
     private final Logger logger = LoggerFactory.getLogger(GitHubClient.class);
 
     private static final String BASE_URL = "https://api.github.com/repos/";
 
     @Override
-    protected void onReceipt(String s, GitHubUpdateDto dto) {
-        var lastModified = linksToUpdateDao.get(s);
-        if (lastModified == null || !lastModified.equals(dto.toString())) {
-            linksToUpdateDao.save(s, dto.toString());
-            logger.info("Updates by link: " + s + ": " + dto);
-        } else {
-            logger.info("No updates by link: " + s + ": " + dto);
-        }
+    protected void log(String line) {
+        logger.info(line);
     }
 
     public GitHubClient(String baseUrl, LinksToUpdateDao dao) {
-        super(baseUrl == null ? BASE_URL : baseUrl);
-        this.linksToUpdateDao = dao;
+        super(baseUrl == null ? BASE_URL : baseUrl, dao);
         this.classMono = GitHubUpdateDto.class;
     }
 
     @Override
     protected String transform(String link) {
         return Utils.githubLinkToUri(link);
+    }
+
+    @Override
+    protected String dtoToString(GitHubUpdateDto dto) {
+        return dto.toString();
     }
 }
