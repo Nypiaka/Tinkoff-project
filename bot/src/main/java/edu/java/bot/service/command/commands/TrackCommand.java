@@ -31,7 +31,8 @@ public class TrackCommand implements Command {
             ans = "Please, insert link to track in format \"/track {link}\".";
         } else {
             if (BotUtils.validateLink(parts.get(1))) {
-                var saved = linksDao.saveLink(update.message().chat().id(), update.message().text().split(" ")[1]);
+                var saved =
+                    linksDao.saveLink(update.message().chat().id(), update.message().text().split(" ")[1], "");
                 ans = saved ? "Link saved successful." : "Oops! Link was not saved.";
             } else {
                 ans = "Wrong link format!";

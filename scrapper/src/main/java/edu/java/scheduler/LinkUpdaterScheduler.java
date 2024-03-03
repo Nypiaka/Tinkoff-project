@@ -3,7 +3,7 @@ package edu.java.scheduler;
 import edu.java.Utils;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
-import edu.java.dao.LinksToUpdateDao;
+import edu.java.dao.LinksDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,7 +20,7 @@ public class LinkUpdaterScheduler {
     StackOverflowClient stackOverflowClient;
 
     @Autowired
-    private LinksToUpdateDao linksToUpdateDao;
+    private LinksDao linksToUpdateDao;
 
     @Scheduled(
         fixedDelayString = "#{@'app-edu.java.configuration.ApplicationConfig'.scheduler.interval}"

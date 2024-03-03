@@ -1,4 +1,4 @@
-package edu.java.bot.dao;
+package edu.java.dao;
 
 import java.util.Collection;
 import java.util.HashMap;

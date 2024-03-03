@@ -1,7 +1,10 @@
 package edu.java;
 
+import edu.java.dto.handlers.ApiErrorResponse;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Utils {
@@ -38,5 +41,21 @@ public class Utils {
 
     public static String githubLinkToUri(String link) {
         return extractLinkToUri(link, GITHUB_IDENTIFIER);
+    }
+
+    public static ResponseEntity<ApiErrorResponse> errorRequest(int code) {
+        var message = "";
+        switch (code) {
+            case 400 -> message = "bad request";
+            case 404 -> message = "not found";
+            default -> message = "";
+        }
+        return ResponseEntity.status(code).body(new ApiErrorResponse(
+            message,
+            String.valueOf(code),
+            message,
+            message,
+            List.of()
+        ));
     }
 }

@@ -1,7 +1,7 @@
 package edu.java.clients;
 
 import edu.java.Utils;
-import edu.java.dao.LinksToUpdateDao;
+import edu.java.dao.LinksDao;
 import edu.java.dto.github.GitHubUpdateDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class GitHubClient extends AbstractClient<GitHubUpdateDto> {
         logger.info(line);
     }
 
-    public GitHubClient(String baseUrl, LinksToUpdateDao dao) {
+    public GitHubClient(String baseUrl, LinksDao dao) {
         super(baseUrl == null ? BASE_URL : baseUrl, dao);
         this.classMono = GitHubUpdateDto.class;
     }
