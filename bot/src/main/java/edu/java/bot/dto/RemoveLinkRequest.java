@@ -1,4 +1,4 @@
-package edu.java.dto.handlers;
+package edu.java.bot.dto;
 
 import java.net.URI;
 import lombok.AllArgsConstructor;

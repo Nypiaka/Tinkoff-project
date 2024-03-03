@@ -22,34 +22,34 @@ public class LinksDao {
     }
 
     public boolean saveLink(Long id, String link, String content) {
-        link = link.toLowerCase();
+        var curLink = link.toLowerCase();
         links.putIfAbsent(id, new HashSet<>());
         if (content != null) {
-            lastLinkUpdate.put(link, content);
+            lastLinkUpdate.put(curLink, content);
         }
-        links.get(id).add(link);
-        return links.containsKey(id) && links.get(id).contains(link);
+        links.get(id).add(curLink);
+        return links.containsKey(id) && links.get(id).contains(curLink);
     }
 
     public boolean removeLink(Long id, String link) {
-        link = link.toLowerCase();
-        if (!containsLink(id, link)) {
+        var curLink = link.toLowerCase();
+        if (!containsLink(id, curLink)) {
             return false;
         }
-        links.get(id).remove(link);
-        return !links.get(id).contains(link);
+        links.get(id).remove(curLink);
+        return !links.get(id).contains(curLink);
     }
 
     public boolean containsLink(Long id, String link) {
-        link = link.toLowerCase();
-        return links.containsKey(id) && links.get(id).contains(link);
+        var curLink = link.toLowerCase();
+        return links.containsKey(id) && links.get(id).contains(curLink);
     }
 
     public boolean updateLink(List<Long> id, String link, String content) {
-        link = link.toLowerCase();
+        var curLink = link.toLowerCase();
         var success = true;
         for (var i : id) {
-            success &= saveLink(i, link, content);
+            success &= saveLink(i, curLink, content);
         }
         return success;
     }
@@ -79,16 +79,16 @@ public class LinksDao {
     }
 
     public String getLastUpdate(String link) {
-        link = link.toLowerCase();
-        return lastLinkUpdate.get(link);
+        var curLink = link.toLowerCase();
+        return lastLinkUpdate.get(curLink);
     }
 
     public boolean save(String link, String update) {
-        link = link.toLowerCase();
-        if (!lastLinkUpdate.containsKey(link) || !lastLinkUpdate.get(link).equals(update)) {
-            lastLinkUpdate.put(link, update);
+        var curLink = link.toLowerCase();
+        if (!lastLinkUpdate.containsKey(curLink) || !lastLinkUpdate.get(curLink).equals(update)) {
+            lastLinkUpdate.put(curLink, update);
         }
-        return lastLinkUpdate.containsKey(link);
+        return lastLinkUpdate.containsKey(curLink);
     }
 
 }

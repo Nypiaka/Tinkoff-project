@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.validator.UrlValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -16,13 +17,9 @@ public class BotUtils {
     }
 
     public static ResponseEntity<ApiErrorResponse> errorRequest(int code) {
-        var message = "";
-        switch (code) {
-            case 400 -> message = "bad request";
-            case 404 -> message = "not found";
-            default -> message = "";
-        }
-        return ResponseEntity.status(code).body(new ApiErrorResponse(
+        var message = HttpStatus.valueOf(code).getReasonPhrase();
+        var resp = ResponseEntity.status(code);
+        return resp.body(new ApiErrorResponse(
             message,
             String.valueOf(code),
             message,

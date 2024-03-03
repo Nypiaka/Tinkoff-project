@@ -6,7 +6,6 @@ import edu.java.dto.handlers.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,15 +28,12 @@ public class ChatsController {
             schema = @Schema(implementation = ApiErrorResponse.class)
         )})
     @PostMapping("/chat-id/{id}")
-    public Mono<Void> registerChat(@PathVariable Long id) {
+    public Mono<ResponseEntity<ApiErrorResponse>> registerChat(@PathVariable Long id) {
         var success = linksDao.registerChat(id);
         if (success) {
             return Mono.empty();
         }
-        var error = new ApiErrorResponse("bad request", String.valueOf(HttpStatus.BAD_REQUEST.value()), "bad request",
-            "bad request", List.of()
-        );
-        return Mono.error(new RuntimeException(error.toString()));
+        return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
     }
 
     @ApiResponse(responseCode = "200", description = "Чат успешно удалён")
@@ -57,9 +53,9 @@ public class ChatsController {
         return Mono.just(contains).flatMap(
             cont -> {
                 if (cont) {
-                    return Mono.just(Utils.errorRequest(400));
+                    return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
                 }
-                return Mono.just(Utils.errorRequest(404));
+                return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
             }
         );
     }
