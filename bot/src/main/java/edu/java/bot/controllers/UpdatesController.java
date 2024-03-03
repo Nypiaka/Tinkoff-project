@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class UpdatesController {
 
-    private LinksDao linksDao;
+    private final LinksDao linksDao;
 
     @ApiResponse(responseCode = "200", description = "Обновление обработано")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
@@ -30,7 +30,7 @@ public class UpdatesController {
                 linkUpdate.getDescription()
             );
             if (updated) {
-                return Mono.empty();
+                return Mono.just(ResponseEntity.ok().build());
             } else {
                 return Mono.just(BotUtils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }

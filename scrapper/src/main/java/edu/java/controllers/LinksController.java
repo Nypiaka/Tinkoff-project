@@ -59,7 +59,7 @@ public class LinksController {
         return Mono.just(request).flatMap(
             req -> {
                 if (linksDao.saveLink(id, req.getLink().toString(), "")) {
-                    return Mono.empty();
+                    return Mono.just(ResponseEntity.ok().build());
                 }
                 return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }
@@ -80,7 +80,7 @@ public class LinksController {
                     return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
                 }
                 if (linksDao.removeLink(id, req.getLink().toString())) {
-                    return Mono.empty();
+                    return Mono.just(ResponseEntity.ok().build());
                 }
                 return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }
