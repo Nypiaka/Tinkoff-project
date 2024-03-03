@@ -31,7 +31,7 @@ public class ChatsController {
     public Mono<ResponseEntity<ApiErrorResponse>> registerChat(@PathVariable Long id) {
         var success = linksDao.registerChat(id);
         if (success) {
-            return Mono.empty();
+            return Mono.just(ResponseEntity.ok().build());
         }
         return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
     }
@@ -47,7 +47,7 @@ public class ChatsController {
     public Mono<ResponseEntity<ApiErrorResponse>> removeChat(@PathVariable Long id) {
         var success = linksDao.removeChat(id);
         if (success) {
-            return Mono.empty();
+            return Mono.just(ResponseEntity.ok().build());
         }
         var contains = linksDao.containsChat(id);
         return Mono.just(contains).flatMap(
