@@ -4,6 +4,7 @@ import edu.java.dto.handlers.ApiErrorResponse;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -44,12 +45,7 @@ public class Utils {
     }
 
     public static ResponseEntity<ApiErrorResponse> errorRequest(int code) {
-        var message = "";
-        switch (code) {
-            case 400 -> message = "bad request";
-            case 404 -> message = "not found";
-            default -> message = "";
-        }
+        var message = HttpStatus.valueOf(code).getReasonPhrase();
         return ResponseEntity.status(code).body(new ApiErrorResponse(
             message,
             String.valueOf(code),

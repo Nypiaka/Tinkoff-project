@@ -2,14 +2,25 @@ package edu.java.controllers;
 
 import edu.java.Utils;
 import edu.java.dao.LinksDao;
-import edu.java.dto.handlers.*;
+import edu.java.dto.handlers.AddLinkRequest;
+import edu.java.dto.handlers.ApiErrorResponse;
+import edu.java.dto.handlers.LinkResponse;
+import edu.java.dto.handlers.ListLinksResponse;
+import edu.java.dto.handlers.RemoveLinkRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/links")
@@ -31,7 +42,7 @@ public class LinksController {
                     ).toList(), links.size());
                     return Mono.just(ResponseEntity.ok().body(result));
                 }
-                return Mono.just(Utils.errorRequest(400));
+                return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }
         );
     }
@@ -50,7 +61,7 @@ public class LinksController {
                 if (linksDao.saveLink(id, req.getLink().toString(), "")) {
                     return Mono.empty();
                 }
-                return Mono.just(Utils.errorRequest(400));
+                return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }
         );
     }
@@ -66,12 +77,12 @@ public class LinksController {
         return Mono.just(request).flatMap(
             req -> {
                 if (!linksDao.containsLink(id, req.getLink().toString())) {
-                    return Mono.just(Utils.errorRequest(404));
+                    return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
                 }
                 if (linksDao.removeLink(id, req.getLink().toString())) {
                     return Mono.empty();
                 }
-                return Mono.just(Utils.errorRequest(400));
+                return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }
         );
     }
