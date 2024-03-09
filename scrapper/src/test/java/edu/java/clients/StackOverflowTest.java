@@ -1,7 +1,7 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.dao.LinksToUpdateDao;
+import edu.java.dao.LinksDao;
 import java.util.ArrayList;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 public class StackOverflowTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
-    private final LinksToUpdateDao linksToUpdateDao = Mockito.mock(LinksToUpdateDao.class);
+    private final LinksDao linksToUpdateDao = Mockito.mock(LinksDao.class);
     StackOverflowClient stackOverflowClient = new StackOverflowClient(TEST_LOCALHOST_LINK, linksToUpdateDao);
 
     @Test
@@ -30,7 +30,7 @@ public class StackOverflowTest {
             Set.of("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime")
         );
 
-        Mockito.when(linksToUpdateDao.get(
+        Mockito.when(linksToUpdateDao.getLastUpdate(
                 "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"))
             .thenReturn("not updated");
 

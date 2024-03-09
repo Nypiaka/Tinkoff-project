@@ -1,7 +1,7 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.dao.LinksToUpdateDao;
+import edu.java.dao.LinksDao;
 import java.util.ArrayList;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -16,8 +16,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 public class GithubClientTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
-    private final LinksToUpdateDao linksToUpdateDao = Mockito.mock(LinksToUpdateDao.class);
-    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, linksToUpdateDao);
+    private final LinksDao linksDao = Mockito.mock(LinksDao.class);
+    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, linksDao);
 
     @Test
     public void githubClientTest() {
@@ -26,16 +26,16 @@ public class GithubClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.GITHUB_TEST_RESPONSE)));
 
-        Mockito.when(linksToUpdateDao.getAllLinks()).thenReturn(
+        Mockito.when(linksDao.getAllLinks()).thenReturn(
             Set.of("github.com/nypiaka/itmo-projects")
         );
 
-        Mockito.when(linksToUpdateDao.get("github.com/nypiaka/itmo-projects")).thenReturn("not updated");
+        Mockito.when(linksDao.getLastUpdate("github.com/nypiaka/itmo-projects")).thenReturn("not updated");
 
         var result = new ArrayList<String>();
 
         Mockito.doAnswer(inv ->
-                result.add(inv.getArgument(1))).when(linksToUpdateDao)
+                result.add(inv.getArgument(1))).when(linksDao)
             .save(Mockito.eq("github.com/nypiaka/itmo-projects"), Mockito.anyString());
 
         gitHubClient.fetch("github.com/nypiaka/itmo-projects");

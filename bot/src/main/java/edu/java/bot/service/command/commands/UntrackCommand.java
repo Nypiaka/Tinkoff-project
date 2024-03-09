@@ -2,9 +2,9 @@ package edu.java.bot.service.command.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.BotUtils;
-import edu.java.bot.dao.LinksDao;
 import edu.java.bot.service.command.Command;
+import edu.java.dao.LinksDao;
+import edu.java.utils.Utils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class UntrackCommand implements Command {
         if (content.length < 2) {
             ans = "Please, insert link to remove in format \"/untrack {link}\".";
         } else {
-            if (BotUtils.validateLink(parts.get(1))) {
+            if (Utils.validateLink(parts.get(1))) {
                 var saved = linksDao.removeLink(update.message().chat().id(), update.message().text().split(" ")[1]);
                 ans = saved ? "Link removed successful." : "Oops! Link was not removed.";
             } else {

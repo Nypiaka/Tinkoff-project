@@ -1,8 +1,8 @@
 package edu.java.clients;
 
-import edu.java.Utils;
-import edu.java.dao.LinksToUpdateDao;
+import edu.java.dao.LinksDao;
 import edu.java.dto.stackoverflow.StackOverflowUpdatesDto;
+import edu.java.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class StackOverflowClient extends AbstractClient<StackOverflowUpdatesDto>
         logger.info(line);
     }
 
-    public StackOverflowClient(String baseUrl, LinksToUpdateDao dao) {
+    public StackOverflowClient(String baseUrl, LinksDao dao) {
         super(baseUrl == null ? BASE_URL : baseUrl, dao);
         this.classMono = StackOverflowUpdatesDto.class;
     }

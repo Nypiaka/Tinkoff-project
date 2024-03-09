@@ -3,12 +3,12 @@ package edu.java.bot;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.dao.LinksDao;
 import edu.java.bot.service.command.commands.HelpCommand;
 import edu.java.bot.service.command.commands.ListCommand;
 import edu.java.bot.service.command.commands.StartCommand;
 import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
+import edu.java.dao.LinksDao;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -57,7 +57,7 @@ class CommandsTest {
         var res = listCommand.handle(mockUpdate(""), List.of(listCommand.getCommandName()));
         Assertions.assertEquals("""
             Tracked links:
-            Empty now. But someday it won't be empty.""", res.getParameters().get("text"));
+            """, res.getParameters().get("text"));
     }
 
     @Test
@@ -93,7 +93,7 @@ class CommandsTest {
 
     @Test
     public void trackCommandSuccessTest() {
-        Mockito.when(linksDao.saveLink(0L, "https://github.com")).thenReturn(true);
+        Mockito.when(linksDao.saveLink(0L, "https://github.com", "")).thenReturn(true);
         var res = trackCommand.handle(
             mockUpdate("/track https://github.com"),
             List.of(trackCommand.getCommandName(), "https://github.com")
@@ -104,7 +104,7 @@ class CommandsTest {
 
     @Test
     public void trackCommandWrongFormatTest() {
-        Mockito.when(linksDao.saveLink(0L, "somelink")).thenReturn(true);
+        Mockito.when(linksDao.saveLink(0L, "somelink", "")).thenReturn(true);
         var res = trackCommand.handle(
             mockUpdate("/track somelink"),
             List.of(trackCommand.getCommandName(), "somelink")
@@ -115,7 +115,7 @@ class CommandsTest {
 
     @Test
     public void trackCommandUnSuccessTest() {
-        Mockito.when(linksDao.saveLink(0L, "https://github.com")).thenReturn(false);
+        Mockito.when(linksDao.saveLink(0L, "https://github.com", "")).thenReturn(false);
         var res = trackCommand.handle(
             mockUpdate("/track https://github.com"),
             List.of(trackCommand.getCommandName(), "https://github.com")

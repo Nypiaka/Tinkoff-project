@@ -2,8 +2,8 @@ package edu.java.bot.service.command.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.dao.LinksDao;
 import edu.java.bot.service.command.Command;
+import edu.java.dao.LinksDao;
 import java.util.List;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
