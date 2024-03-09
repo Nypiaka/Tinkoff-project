@@ -1,6 +1,7 @@
 package edu.java.bot.configuration;
 
 import edu.java.bot.bot.LinksRefreshCheckerBot;
+import edu.java.dao.LinksDao;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,5 +19,10 @@ public record ApplicationConfig(
     @Bean
     public LinksRefreshCheckerBot linksRefreshCheckerBot() {
         return new LinksRefreshCheckerBot(telegramToken);
+    }
+
+    @Bean
+    public LinksDao linksDao() {
+        return new LinksDao();
     }
 }
