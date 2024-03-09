@@ -1,9 +1,9 @@
 package edu.java.bot.clients;
 
-import edu.java.bot.dto.AddLinkRequest;
-import edu.java.bot.dto.ApiErrorResponse;
-import edu.java.bot.dto.ListLinksResponse;
-import edu.java.bot.dto.RemoveLinkRequest;
+import edu.java.utils.dto.AddLinkRequest;
+import edu.java.utils.dto.ApiErrorResponse;
+import edu.java.utils.dto.ListLinksResponse;
+import edu.java.utils.dto.RemoveLinkRequest;
 import java.net.URI;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

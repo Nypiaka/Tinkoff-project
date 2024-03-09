@@ -1,12 +1,12 @@
 package edu.java.controllers;
 
-import edu.java.Utils;
 import edu.java.dao.LinksDao;
-import edu.java.dto.handlers.AddLinkRequest;
-import edu.java.dto.handlers.ApiErrorResponse;
-import edu.java.dto.handlers.LinkResponse;
-import edu.java.dto.handlers.ListLinksResponse;
-import edu.java.dto.handlers.RemoveLinkRequest;
+import edu.java.utils.Utils;
+import edu.java.utils.dto.AddLinkRequest;
+import edu.java.utils.dto.ApiErrorResponse;
+import edu.java.utils.dto.LinkResponse;
+import edu.java.utils.dto.ListLinksResponse;
+import edu.java.utils.dto.RemoveLinkRequest;
 import java.net.URI;
 import java.util.List;
 import org.junit.jupiter.api.Test;

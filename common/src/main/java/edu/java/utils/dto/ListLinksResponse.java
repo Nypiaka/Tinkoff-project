@@ -1,4 +1,4 @@
-package edu.java.dto.handlers;
+package edu.java.utils.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

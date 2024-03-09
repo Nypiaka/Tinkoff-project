@@ -1,8 +1,8 @@
 package edu.java.controllers;
 
 import edu.java.dao.LinksDao;
-import edu.java.dto.handlers.ApiErrorResponse;
 import java.util.Objects;
+import edu.java.utils.dto.ApiErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;

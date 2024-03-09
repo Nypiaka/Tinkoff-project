@@ -1,14 +1,17 @@
-package edu.java;
+package edu.java.utils;
 
-import edu.java.dto.handlers.ApiErrorResponse;
+import edu.java.utils.dto.ApiErrorResponse;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.validator.UrlValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Utils {
+
+    private static final UrlValidator VALIDATOR = new UrlValidator();
 
     private static final String GITHUB_IDENTIFIER = "github.com";
 
@@ -53,5 +56,9 @@ public class Utils {
             message,
             List.of()
         ));
+    }
+
+    public static boolean validateLink(String link) {
+        return VALIDATOR.isValid(link);
     }
 }

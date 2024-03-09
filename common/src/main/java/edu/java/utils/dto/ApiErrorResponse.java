@@ -1,4 +1,4 @@
-package edu.java.bot.dto;
+package edu.java.utils.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiErrorResponse {
-    String type;
+    private String type;
 
-    String code;
+    private String code;
 
-    String exceptionName;
+    private String exceptionName;
 
-    String exceptionMessage;
+    private String exceptionMessage;
 
-    List<String> stacktrace;
+    private List<String> stacktrace;
 }

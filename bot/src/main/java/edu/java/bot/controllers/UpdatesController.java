@@ -1,9 +1,9 @@
 package edu.java.bot.controllers;
 
-import edu.java.bot.BotUtils;
 import edu.java.bot.dao.LinksDao;
-import edu.java.bot.dto.ApiErrorResponse;
-import edu.java.bot.dto.LinkUpdate;
+import edu.java.utils.Utils;
+import edu.java.utils.dto.ApiErrorResponse;
+import edu.java.utils.dto.LinkUpdate;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ public class UpdatesController {
             if (updated) {
                 return Mono.just(ResponseEntity.ok().build());
             } else {
-                return Mono.just(BotUtils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+                return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }
         });
 
