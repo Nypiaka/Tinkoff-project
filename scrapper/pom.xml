@@ -148,6 +148,12 @@
             <artifactId>jackson-core-asl</artifactId>
             <version>1.7.4</version>
         </dependency>
+        <dependency>
+            <groupId>edu.java</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

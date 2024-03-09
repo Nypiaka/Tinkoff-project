@@ -136,6 +136,12 @@
             <version>2.2.19</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>edu.java</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

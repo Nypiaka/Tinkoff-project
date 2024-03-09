@@ -2,10 +2,10 @@ package edu.java.bot;
 
 import edu.java.bot.controllers.UpdatesController;
 import edu.java.bot.dao.LinksDao;
-import edu.java.bot.dto.ApiErrorResponse;
-import edu.java.bot.dto.LinkUpdate;
 import java.net.URI;
 import java.util.List;
+import edu.java.utils.dto.ApiErrorResponse;
+import edu.java.utils.dto.LinkUpdate;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;

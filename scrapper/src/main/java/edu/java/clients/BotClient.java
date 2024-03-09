@@ -1,7 +1,7 @@
 package edu.java.clients;
 
-import edu.java.dto.handlers.ApiErrorResponse;
-import edu.java.dto.handlers.LinkUpdate;
+import edu.java.utils.dto.ApiErrorResponse;
+import edu.java.utils.dto.LinkUpdate;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;

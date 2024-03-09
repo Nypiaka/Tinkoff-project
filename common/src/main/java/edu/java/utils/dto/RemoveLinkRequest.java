@@ -1,4 +1,4 @@
-package edu.java.dto.handlers;
+package edu.java.utils.dto;
 
 import java.net.URI;
 import lombok.AllArgsConstructor;
@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RemoveLinkRequest {
-    URI link;
+    private URI link;
 }

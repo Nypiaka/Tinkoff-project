@@ -1,9 +1,9 @@
 package edu.java.scheduler;
 
-import edu.java.Utils;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import edu.java.dao.LinksDao;
+import edu.java.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;

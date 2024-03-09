@@ -1,8 +1,8 @@
 package edu.java.controllers;
 
-import edu.java.Utils;
 import edu.java.dao.LinksDao;
-import edu.java.dto.handlers.ApiErrorResponse;
+import edu.java.utils.Utils;
+import edu.java.utils.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
