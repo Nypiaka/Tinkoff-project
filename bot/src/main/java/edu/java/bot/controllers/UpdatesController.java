@@ -1,6 +1,6 @@
 package edu.java.bot.controllers;
 
-import edu.java.bot.dao.LinksDao;
+import edu.java.dao.LinksDao;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.ApiErrorResponse;
 import edu.java.utils.dto.LinkUpdate;
