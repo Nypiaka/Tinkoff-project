@@ -5,12 +5,15 @@ import edu.java.utils.dto.ApiErrorResponse;
 import edu.java.utils.dto.ListLinksResponse;
 import edu.java.utils.dto.RemoveLinkRequest;
 import java.net.URI;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+@Component
 public class ScrapperClient {
 
     private final WebClient webClient;
@@ -21,8 +24,11 @@ public class ScrapperClient {
 
     private static final String ID_HEADER = "Tg-Chat-Id";
 
+    @Value("${server.link}")
+    private String baseUrl;
+
     public ScrapperClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8080").build();
+        this.webClient = webClientBuilder.baseUrl(baseUrl).build();
     }
 
     public Mono<ApiErrorResponse> registerChat(Long id) {
