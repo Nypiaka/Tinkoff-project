@@ -1,4 +1,4 @@
-package edu.java.dto.handlers;
+package edu.java.utils.dto;
 
 import java.net.URI;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LinkResponse {
-    Long id;
+    private Long id;
 
-    URI url;
+    private URI url;
 }
