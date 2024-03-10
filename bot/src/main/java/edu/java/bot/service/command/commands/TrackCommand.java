@@ -6,12 +6,14 @@ import edu.java.bot.service.command.Command;
 import edu.java.dao.LinksDao;
 import edu.java.utils.Utils;
 import java.util.List;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TrackCommand implements Command {
     @Autowired
+    @VisibleForTesting
     private LinksDao linksDao;
 
     @Override

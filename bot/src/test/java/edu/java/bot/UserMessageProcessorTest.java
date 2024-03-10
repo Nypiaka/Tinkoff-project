@@ -13,18 +13,11 @@ import edu.java.bot.service.processor.UserMessageProcessor;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 class UserMessageProcessorTest {
-    @InjectMocks
     UserMessageProcessor userMessageProcessor;
 
     private final HelpCommand helpCommand = mock(HelpCommand.class);
@@ -39,6 +32,8 @@ class UserMessageProcessorTest {
         when(startCommand.getCommandName()).thenReturn("/start");
         when(trackCommand.getCommandName()).thenReturn("/track");
         when(untrackCommand.getCommandName()).thenReturn("/untrack");
+        userMessageProcessor =
+            new UserMessageProcessor(helpCommand, listCommand, startCommand, trackCommand, untrackCommand);
     }
 
     private Update mockUpdate(String expectedMessage) {

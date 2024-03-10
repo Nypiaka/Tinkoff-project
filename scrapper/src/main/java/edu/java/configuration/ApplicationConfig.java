@@ -2,6 +2,7 @@ package edu.java.configuration;
 
 import edu.java.dao.LinksDao;
 import jakarta.validation.constraints.NotNull;
+import java.sql.SQLException;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -20,8 +21,8 @@ public record ApplicationConfig(
 ) {
 
     @Bean
-    public LinksDao linksDao() {
-        return new LinksDao();
+    public LinksDao linksDao() throws SQLException {
+        return new LinksDao("jdbc:postgresql://localhost:5432/scrapper");
     }
 
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {

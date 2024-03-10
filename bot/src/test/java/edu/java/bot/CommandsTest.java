@@ -12,30 +12,28 @@ import edu.java.dao.LinksDao;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 class CommandsTest {
 
-    @Autowired ListCommand listCommand;
+    ListCommand listCommand = new ListCommand();
 
-    @Autowired HelpCommand helpCommand;
+    StartCommand startCommand = new StartCommand();
 
-    @Autowired StartCommand startCommand;
+    TrackCommand trackCommand = new TrackCommand();
 
-    @InjectMocks
-    TrackCommand trackCommand;
+    UntrackCommand untrackCommand = new UntrackCommand();
 
-    @InjectMocks
-    UntrackCommand untrackCommand;
+    HelpCommand helpCommand = new HelpCommand(List.of(listCommand, startCommand, trackCommand, untrackCommand));
 
     private final LinksDao linksDao = Mockito.mock(LinksDao.class);
+
+    {
+        ReflectionTestUtils.setField(listCommand, "linksDao", linksDao);
+        ReflectionTestUtils.setField(trackCommand, "linksDao", linksDao);
+        ReflectionTestUtils.setField(untrackCommand, "linksDao", linksDao);
+    }
 
     private Update mockUpdate(String expectedMessage) {
         var update = Mockito.mock(Update.class);

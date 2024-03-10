@@ -138,7 +138,7 @@
         </dependency>
         <dependency>
             <groupId>edu.java</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>utilities</artifactId>
             <version>0.1</version>
             <scope>compile</scope>
         </dependency>
