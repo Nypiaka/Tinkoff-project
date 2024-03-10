@@ -125,7 +125,7 @@
         </dependency>
         <dependency>
             <groupId>edu.java</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>utilities</artifactId>
             <version>0.1</version>
             <scope>compile</scope>
         </dependency>
@@ -134,6 +134,12 @@
             <artifactId>swagger-annotations-jakarta</artifactId>
             <version>2.2.19</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.1</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
