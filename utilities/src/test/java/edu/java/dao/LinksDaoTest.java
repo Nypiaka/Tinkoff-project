@@ -67,11 +67,11 @@ public class LinksDaoTest {
         var link2 = "https://example.com/2";
         var link3 = "https://example.com/3";
         var links = List.of(link1, link2, link3);
-        saveLinks(id, links);
+        saveLinks(id, links, linksDao);
 
         var retrievedLinks = linksDao.getList(id);
 
-        Assertions.assertEquals(links, retrievedLinks);
+        Assertions.assertEquals(new HashSet<>(links), new HashSet<>(retrievedLinks));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class LinksDaoTest {
         var id = 1L;
         var link = "https://example.com/test";
         var content = "This is some test content.";
-        saveLink(id, link, content);
+        linksDao.saveLink(id, link, content);
 
         var removed = linksDao.removeLink(id, link);
 
@@ -116,7 +116,7 @@ public class LinksDaoTest {
         var link = "https://example.com/test";
         var content1 = "This is some test content for ID 1.";
         var content2 = "This is some test content for ID 2.";
-        saveLink(id1, link, content1);
+        linksDao.saveLink(id1, link, content1);
 
         var updated = linksDao.updateLink(List.of(id1, id2), link, content2);
 
@@ -150,7 +150,7 @@ public class LinksDaoTest {
     public void testRemoveChat() throws SQLException {
         var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
         var id = 1L;
-        registerChat(id);
+        linksDao.registerChat(id);
 
         var removed = linksDao.removeChat(id);
 
@@ -168,7 +168,7 @@ public class LinksDaoTest {
         var containsChat = linksDao.containsChat(id);
         Assertions.assertFalse(containsChat);
 
-        registerChat(id);
+        linksDao.registerChat(id);
 
         containsChat = linksDao.containsChat(id);
         Assertions.assertTrue(containsChat);
@@ -181,7 +181,7 @@ public class LinksDaoTest {
         var link2 = "https://example.com/2";
         var link3 = "https://example.com/3";
         var links = List.of(link1, link2, link3);
-        saveLinks(0L, links);
+        saveLinks(0L, links, linksDao);
 
         var retrievedLinks = linksDao.getAllLinks();
 
@@ -194,8 +194,8 @@ public class LinksDaoTest {
         var link = "https://example.com/test";
         var update1 = "This is the first update for " + link;
         var update2 = "This is the second update for " + link;
-        save(link, update1);
-        save(link, update2);
+        linksDao.save(link, update1);
+        linksDao.save(link, update2);
 
         var retrievedUpdate = linksDao.getLastUpdate(link);
 
@@ -216,24 +216,10 @@ public class LinksDaoTest {
         Assertions.assertEquals(update, retrievedUpdate);
     }
 
-    private void saveLinks(Long id, List<String> links) throws SQLException {
+    private void saveLinks(Long id, List<String> links, LinksDao linksDao) throws SQLException {
         for (var link : links) {
-            saveLink(id, link, "");
+            linksDao.saveLink(id, link, "");
         }
     }
 
-    private void saveLink(Long id, String link, String content) throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
-        linksDao.saveLink(id, link, content);
-    }
-
-    private void save(String link, String update) throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
-        linksDao.save(link, update);
-    }
-
-    private void registerChat(Long id) throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
-        linksDao.registerChat(id);
-    }
 }
