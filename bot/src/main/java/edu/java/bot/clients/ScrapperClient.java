@@ -5,7 +5,7 @@ import edu.java.utils.dto.ApiErrorResponse;
 import edu.java.utils.dto.ListLinksResponse;
 import edu.java.utils.dto.RemoveLinkRequest;
 import java.net.URI;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -24,11 +24,8 @@ public class ScrapperClient {
 
     private static final String ID_HEADER = "Tg-Chat-Id";
 
-    @Value("${server.link}")
-    private String baseUrl;
-
-    public ScrapperClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(baseUrl).build();
+    public ScrapperClient(WebClient webClient) {
+        this.webClient = webClient;
     }
 
     public Mono<ApiErrorResponse> registerChat(Long id) {
@@ -69,9 +66,10 @@ public class ScrapperClient {
 
     public Mono<ResponseEntity<ApiErrorResponse>> removeLink(Long id, URI link) {
         RemoveLinkRequest request = new RemoveLinkRequest(link);
-        return webClient.delete()
+        return webClient.method(HttpMethod.DELETE)
             .uri(LINKS_URI)
             .header(ID_HEADER, String.valueOf(id))
+            .body(BodyInserters.fromValue(request))
             .retrieve()
             .bodyToMono(ApiErrorResponse.class)
             .map(ResponseEntity::ok);

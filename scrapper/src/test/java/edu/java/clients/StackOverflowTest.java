@@ -1,7 +1,7 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.dao.LinksDao;
+import edu.java.dao.JdbcLinksDao;
 import java.util.ArrayList;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 public class StackOverflowTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
-    private final LinksDao linksToUpdateDao = Mockito.mock(LinksDao.class);
+    private final JdbcLinksDao linksToUpdateDao = Mockito.mock(JdbcLinksDao.class);
     StackOverflowClient stackOverflowClient = new StackOverflowClient(TEST_LOCALHOST_LINK, linksToUpdateDao);
 
     @Test
@@ -26,9 +26,10 @@ public class StackOverflowTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.STACKOVERFLOW_TEST_RESPONSE)));
 
-        Mockito.when(linksToUpdateDao.getAllLinks()).thenReturn(
-            Set.of("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime")
-        );
+        Mockito.when(linksToUpdateDao.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'"))
+            .thenReturn(
+                Set.of("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime")
+            );
 
         Mockito.when(linksToUpdateDao.getLastUpdate(
                 "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"))
@@ -44,11 +45,7 @@ public class StackOverflowTest {
             );
 
         stackOverflowClient.fetch(
-            "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {
-        }
+            "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime").block();
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(
             "StackOverflowUpdateDto(creationDate=2023-12-21T00:00Z, timelineType=vote_aggregate, postId=31109486, owner=OwnerDto(accountId=93689, userId=256196, link=https://stackoverflow.com/users/256196/bohemian))",
