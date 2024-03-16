@@ -2,19 +2,20 @@ package edu.java.bot.service.command.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import edu.java.bot.clients.ScrapperClient;
 import edu.java.bot.service.command.Command;
-import edu.java.dao.LinksDao;
 import edu.java.utils.Utils;
+import java.net.URI;
 import java.util.List;
-import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Component
 public class TrackCommand implements Command {
+
     @Autowired
-    @VisibleForTesting
-    private LinksDao linksDao;
+    private ScrapperClient scrapperClient;
 
     @Override
     public String getCommandName() {
@@ -33,9 +34,12 @@ public class TrackCommand implements Command {
             ans = "Please, insert link to track in format \"/track {link}\".";
         } else {
             if (Utils.validateLink(parts.get(1))) {
-                var saved =
-                    linksDao.saveLink(update.message().chat().id(), update.message().text().split(" ")[1], "");
-                ans = saved ? "Link saved successful." : "Oops! Link was not saved.";
+                try {
+                    scrapperClient.addLink(update.message().chat().id(), URI.create(parts.get(1))).block();
+                    ans = "Link added successful.";
+                } catch (WebClientResponseException e) {
+                    ans = "Oops! Link was not added.";
+                }
             } else {
                 ans = "Wrong link format!";
             }

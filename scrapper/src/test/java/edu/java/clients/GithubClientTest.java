@@ -1,7 +1,7 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.dao.LinksDao;
+import edu.java.dao.JdbcLinksDao;
 import java.util.ArrayList;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -16,8 +16,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 public class GithubClientTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
-    private final LinksDao linksDao = Mockito.mock(LinksDao.class);
-    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, linksDao);
+    private final JdbcLinksDao jdbcLinksDao = Mockito.mock(JdbcLinksDao.class);
+    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, jdbcLinksDao);
 
     @Test
     public void githubClientTest() {
@@ -26,19 +26,20 @@ public class GithubClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.GITHUB_TEST_RESPONSE)));
 
-        Mockito.when(linksDao.getAllLinks()).thenReturn(
-            Set.of("github.com/nypiaka/itmo-projects")
-        );
+        Mockito.when(jdbcLinksDao.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'"))
+            .thenReturn(
+                Set.of("github.com/nypiaka/itmo-projects")
+            );
 
-        Mockito.when(linksDao.getLastUpdate("github.com/nypiaka/itmo-projects")).thenReturn("not updated");
+        Mockito.when(jdbcLinksDao.getLastUpdate("github.com/nypiaka/itmo-projects")).thenReturn("not updated");
 
         var result = new ArrayList<String>();
 
         Mockito.doAnswer(inv ->
-                result.add(inv.getArgument(1))).when(linksDao)
+                result.add(inv.getArgument(1))).when(jdbcLinksDao)
             .save(Mockito.eq("github.com/nypiaka/itmo-projects"), Mockito.anyString());
 
-        gitHubClient.fetch("github.com/nypiaka/itmo-projects");
+        gitHubClient.fetch("github.com/nypiaka/itmo-projects").block();
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {

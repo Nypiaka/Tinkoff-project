@@ -17,15 +17,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-public class LinksDaoTest {
+public class JdbcLinksDaoTest {
 
     private static JdbcDatabaseContainer<?> POSTGRES;
+
+    private static DriverManagerDataSource DATA;
 
     private static void runMigrations(JdbcDatabaseContainer<?> c) {
         try {
@@ -33,10 +36,15 @@ public class LinksDaoTest {
                 new JdbcConnection(DriverManager.getConnection(c.getJdbcUrl(), c.getUsername(), c.getPassword()));
             var db = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbc);
             new Liquibase(
-                "master.xml",
+                "liquibase.xml",
                 new DirectoryResourceAccessor(Path.of("..", "migrations")),
                 db
             ).update(new Contexts());
+            DATA = new DriverManagerDataSource();
+            DATA.setUrl(POSTGRES.getJdbcUrl());
+            DATA.setUsername(POSTGRES.getUsername());
+            DATA.setPassword(POSTGRES.getPassword());
+            DATA.setDriverClassName(POSTGRES.getDriverClassName());
         } catch (SQLException | LiquibaseException | FileNotFoundException ignored) {
         }
     }
@@ -61,7 +69,7 @@ public class LinksDaoTest {
 
     @Test
     public void testGetList() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
         var link1 = "https://example.com/1";
         var link2 = "https://example.com/2";
@@ -76,7 +84,7 @@ public class LinksDaoTest {
 
     @Test
     public void testSaveLink() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
         var link = "https://example.com/test";
         var content = "This is some test content.";
@@ -94,7 +102,7 @@ public class LinksDaoTest {
 
     @Test
     public void testRemoveLink() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
         var link = "https://example.com/test";
         var content = "This is some test content.";
@@ -110,7 +118,7 @@ public class LinksDaoTest {
 
     @Test
     public void testUpdateLink() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var id1 = 1L;
         var id2 = 2L;
         var link = "https://example.com/test";
@@ -135,7 +143,7 @@ public class LinksDaoTest {
 
     @Test
     public void testRegisterChat() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
 
         var registered = linksDao.registerChat(id);
@@ -148,7 +156,7 @@ public class LinksDaoTest {
 
     @Test
     public void testRemoveChat() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
         linksDao.registerChat(id);
 
@@ -162,7 +170,7 @@ public class LinksDaoTest {
 
     @Test
     public void testContainsChat() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
 
         var containsChat = linksDao.containsChat(id);
@@ -176,7 +184,7 @@ public class LinksDaoTest {
 
     @Test
     public void testGetAllLinks() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var link1 = "https://example.com/1";
         var link2 = "https://example.com/2";
         var link3 = "https://example.com/3";
@@ -190,7 +198,7 @@ public class LinksDaoTest {
 
     @Test
     public void testGetLastUpdate() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var link = "https://example.com/test";
         var update1 = "This is the first update for " + link;
         var update2 = "This is the second update for " + link;
@@ -204,7 +212,7 @@ public class LinksDaoTest {
 
     @Test
     public void testSave() throws SQLException {
-        var linksDao = new LinksDao(POSTGRES.getJdbcUrl());
+        var linksDao = new JdbcLinksDao(DATA);
         var link = "https://example.com/test";
         var update = "This is the update for " + link;
 
@@ -216,9 +224,9 @@ public class LinksDaoTest {
         Assertions.assertEquals(update, retrievedUpdate);
     }
 
-    private void saveLinks(Long id, List<String> links, LinksDao linksDao) throws SQLException {
+    private void saveLinks(Long id, List<String> links, JdbcLinksDao jdbcLinksDao) throws SQLException {
         for (var link : links) {
-            linksDao.saveLink(id, link, "");
+            jdbcLinksDao.saveLink(id, link, "");
         }
     }
 

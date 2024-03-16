@@ -2,6 +2,7 @@ package edu.java.clients;
 
 import edu.java.dao.LinksDao;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 public abstract class AbstractClient<T> {
     private final WebClient webClient;
@@ -10,13 +11,16 @@ public abstract class AbstractClient<T> {
 
     protected abstract void log(String line);
 
-    private void onReceipt(String s, T dto) {
+    private boolean onReceipt(String s, T dto) {
         var lastModified = dao.getLastUpdate(s);
         if (lastModified == null || !lastModified.equals(dtoToString(dto))) {
             dao.save(s, dtoToString(dto));
             log("Updates by link: " + s + ": " + dtoToString(dto));
+            return true;
         } else {
+            dao.save(s, dtoToString(dto));
             log("No updates by link: " + s + ": " + dtoToString(dto));
+            return false;
         }
     }
 
@@ -31,10 +35,10 @@ public abstract class AbstractClient<T> {
 
     protected abstract String dtoToString(T dto);
 
-    public void fetch(String uri) {
+    public Mono<Boolean> fetch(String uri) {
         var link = transform(uri);
-        this.webClient.get().uri(link).retrieve().bodyToFlux(classMono).take(1)
-            .subscribe(t -> onReceipt(uri, t));
+        return this.webClient.get().uri(link).retrieve().bodyToFlux(classMono).take(1)
+            .map(t -> onReceipt(uri, t)).last();
     }
 
 }

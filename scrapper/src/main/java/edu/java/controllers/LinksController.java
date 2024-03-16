@@ -1,6 +1,7 @@
 package edu.java.controllers;
 
 import edu.java.dao.LinksDao;
+import edu.java.scheduler.LinkUpdaterScheduler;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.AddLinkRequest;
 import edu.java.utils.dto.ApiErrorResponse;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.VisibleForTesting;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,9 +31,13 @@ import reactor.core.publisher.Mono;
 public class LinksController {
     private final LinksDao linksDao;
 
+    @Autowired
+    @VisibleForTesting
+    private LinkUpdaterScheduler linkUpdaterScheduler;
+
     @ApiResponse(responseCode = "200", description = "Ссылки успешно получены")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
-    @GetMapping
+    @GetMapping()
     public Mono<ResponseEntity<?>> getAllLinks(@RequestHeader("Tg-Chat-Id") Long id) {
         var links = linksDao.getList(id);
         return Mono.just(links).flatMap(
@@ -49,9 +56,7 @@ public class LinksController {
 
     @ApiResponse(responseCode = "200", description = "Ссылка успешно добавлена")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
-    @PostMapping(
-
-    )
+    @PostMapping()
     public Mono<ResponseEntity<ApiErrorResponse>> addLink(
         @RequestHeader("Tg-Chat-Id") Long id,
         @RequestBody AddLinkRequest request
@@ -59,6 +64,7 @@ public class LinksController {
         return Mono.just(request).flatMap(
             req -> {
                 if (linksDao.saveLink(id, req.getLink().toString(), "")) {
+                    linkUpdaterScheduler.forceUpdate(req.getLink().toString());
                     return Mono.just(ResponseEntity.ok().build());
                 }
                 return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
@@ -69,7 +75,7 @@ public class LinksController {
     @ApiResponse(responseCode = "200", description = "Ссылка успешно удалена")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
     @ApiResponse(responseCode = "404", description = "Ссылка не найдена")
-    @DeleteMapping
+    @DeleteMapping()
     public Mono<ResponseEntity<ApiErrorResponse>> removeLink(
         @RequestHeader("Tg-Chat-Id") Long id,
         @RequestBody RemoveLinkRequest request

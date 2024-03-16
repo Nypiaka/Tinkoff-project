@@ -46,7 +46,7 @@ public abstract class IntegrationTest {
                 new JdbcConnection(DriverManager.getConnection(c.getJdbcUrl(), c.getUsername(), c.getPassword()));
             var db = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbc);
             new Liquibase(
-                "master.xml",
+                "liquibase.xml",
                 new DirectoryResourceAccessor(Path.of("..", "migrations")),
                 db
             ).update(new Contexts());
