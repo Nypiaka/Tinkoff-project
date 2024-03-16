@@ -10,6 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class LinksDao {
 
+    private String url;
+
+    public LinksDao(String url) {
+        this.url = url;
+    }
+
     private final Map<Long, HashSet<String>> links = new HashMap<>();
 
     private final Map<String, String> lastLinkUpdate = new HashMap<>();
@@ -90,5 +96,5 @@ public class LinksDao {
         }
         return lastLinkUpdate.containsKey(curLink);
     }
-
 }
+

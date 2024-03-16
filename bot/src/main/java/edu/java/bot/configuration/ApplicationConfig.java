@@ -3,6 +3,7 @@ package edu.java.bot.configuration;
 import edu.java.bot.bot.LinksRefreshCheckerBot;
 import edu.java.dao.LinksDao;
 import jakarta.validation.constraints.NotEmpty;
+import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ public record ApplicationConfig(
     }
 
     @Bean
-    public LinksDao linksDao() {
-        return new LinksDao();
+    public LinksDao linksDao() throws SQLException {
+        return new LinksDao("jdbc:postgresql://localhost:5432/scrapper");
     }
 }
