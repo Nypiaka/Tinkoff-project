@@ -134,10 +134,18 @@ public class JdbcLinksDao implements LinksDao {
     }
 
     @Transactional
+    private boolean exists(String link) {
+        var count = jdbcTemplate.queryForObject("select count(*) from links l where l.link = ?", Long.class, link);
+        return count != null && count != 0;
+    }
+
+    @Transactional
     public boolean save(String link, String update) {
         var linkToWork = link.toLowerCase();
         try {
-            jdbcTemplate.update("insert into links (link) values (?)", linkToWork);
+            if (!exists(link)) {
+                jdbcTemplate.update("insert into links (link) values (?)", linkToWork);
+            }
         } catch (DuplicateKeyException ignored) {
         } finally {
             var linkId = getId(linkToWork);
@@ -152,7 +160,7 @@ public class JdbcLinksDao implements LinksDao {
                 now
             );
         }
-        return !jdbcTemplate.queryForList("select count(*) from links l where l.link = ?", link).isEmpty();
+        return exists(link);
     }
 }
 
