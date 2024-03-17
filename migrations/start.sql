@@ -4,7 +4,7 @@ create table if not exists links
   link varchar unique
 );
 
-create table if not exists content
+create table if not exists content_by_link
 (
   link_id bigint references links (id),
   content varchar,
@@ -12,7 +12,7 @@ create table if not exists content
   unique(link_id)
 );
 
-create table if not exists chats
+create table if not exists chats_to_links
 (
   chat_id bigint,
   link_id bigint references links (id),

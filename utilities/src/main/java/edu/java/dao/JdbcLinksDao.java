@@ -21,7 +21,7 @@ public class JdbcLinksDao implements LinksDao {
     @Transactional
     public List<String> getList(Long id) {
         return jdbcTemplate.queryForList(
-            "select l.link from chats c join links l on l.id = c.link_id where c.chat_id = ?",
+            "select l.link from chats_to_links c join links l on l.id = c.link_id where c.chat_id = ?",
             String.class,
             id
         );
@@ -38,7 +38,7 @@ public class JdbcLinksDao implements LinksDao {
         save(link, content);
         try {
             return jdbcTemplate.update(
-                "insert into chats (chat_id, link_id) values (?, ?)",
+                "insert into chats_to_links (chat_id, link_id) values (?, ?)",
                 id,
                 getId(link.toLowerCase())
             )
@@ -52,8 +52,8 @@ public class JdbcLinksDao implements LinksDao {
     public boolean removeLink(Long id, String link) {
         return jdbcTemplate.update(
             """
-                delete from chats
-                using chats c
+                delete from chats_to_links
+                using chats_to_links c
                 join links t on c.link_id = t.id
                 where c.chat_id = ? and t.link = ?;
                 """, id, link.toLowerCase()) > 0;
@@ -62,7 +62,7 @@ public class JdbcLinksDao implements LinksDao {
     @Transactional
     public boolean containsLink(Long id, String link) {
         var count = jdbcTemplate.queryForObject(
-            "select count(*) from chats c join links l on c.link_id = l.id where c.chat_id = ? and l.link = ?",
+            "select count(*) from chats_to_links c join links l on c.link_id = l.id where c.chat_id = ? and l.link = ?",
             Long.class,
             id,
             link.toLowerCase()
@@ -85,17 +85,18 @@ public class JdbcLinksDao implements LinksDao {
 
     @Transactional
     public boolean registerChat(Long id) {
-        return jdbcTemplate.update("insert into chats (chat_id) values (?)", id) > 0;
+        return jdbcTemplate.update("insert into chats_to_links (chat_id) values (?)", id) > 0;
     }
 
     @Transactional
     public boolean removeChat(Long id) {
-        return jdbcTemplate.update("delete from chats where chat_id = ?", id) != 0;
+        return jdbcTemplate.update("delete from chats_to_links where chat_id = ?", id) != 0;
     }
 
     @Transactional
     public boolean containsChat(Long id) {
-        var count = jdbcTemplate.queryForObject("select count(*) from chats where chat_id = ?", Long.class, id);
+        var count =
+            jdbcTemplate.queryForObject("select count(*) from chats_to_links where chat_id = ?", Long.class, id);
         if (count == null) {
             return false;
         }
@@ -110,7 +111,7 @@ public class JdbcLinksDao implements LinksDao {
     @Transactional
     public Collection<String> getAllLinks(String sqlPart) {
         return jdbcTemplate.queryForList(
-            "select l.link from links l join content c on c.link_id = l.id " + sqlPart,
+            "select l.link from links l join content_by_link c on c.link_id = l.id " + sqlPart,
             String.class
         );
     }
@@ -118,7 +119,7 @@ public class JdbcLinksDao implements LinksDao {
     @Transactional
     public List<Long> getChatsByLink(String link) {
         return jdbcTemplate.queryForList(
-            "select c.chat_id from chats c join links l on l.id = c.link_id where l.link = ?",
+            "select c.chat_id from chats_to_links c join links l on l.id = c.link_id where l.link = ?",
             Long.class,
             link
         );
@@ -127,7 +128,7 @@ public class JdbcLinksDao implements LinksDao {
     @Transactional
     public String getLastUpdate(String link) {
         return jdbcTemplate.queryForList(
-            "select c.content from content c join links l on l.id = c.link_id where l.link = ?",
+            "select c.content from content_by_link c join links l on l.id = c.link_id where l.link = ?",
             String.class,
             link
         ).getFirst();
@@ -151,7 +152,7 @@ public class JdbcLinksDao implements LinksDao {
             var linkId = getId(linkToWork);
             var now = new Date();
             jdbcTemplate.update(
-                "insert into content (link_id, content, updated_at) values (?, ?, ?)"
+                "insert into content_by_link (link_id, content, updated_at) values (?, ?, ?)"
                     + " on conflict (link_id) do update set content = ?, updated_at = ?",
                 linkId,
                 update,
