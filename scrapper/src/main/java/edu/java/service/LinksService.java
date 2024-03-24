@@ -1,16 +1,19 @@
-package edu.java.dao;
+package edu.java.service;
 
+import edu.java.utils.dto.ListLinksResponse;
 import java.util.Collection;
 import java.util.List;
 
-public interface LinksDao {
+public interface LinksService {
     List<String> getList(Long id);
 
-    boolean saveLinkToChat(Long id, String link, String content);
+    boolean saveLinkAndUpdate(Long id, String link, String content);
 
     boolean removeLink(Long id, String link);
 
     boolean containsLink(Long id, String link);
+
+    boolean updateLink(List<Long> id, String link, String content);
 
     boolean registerChat(Long id);
 
@@ -28,6 +31,9 @@ public interface LinksDao {
 
     String getLastUpdate(String link);
 
-    List<Long> getLinksIdsByChatId(Long chatId);
-}
+    void saveLinkAndUpdate(String link, String update);
 
+    List<Long> getLinksIdsByChatId(Long chatId);
+
+    ListLinksResponse getAllByChatId(Long chatId);
+}

@@ -3,7 +3,7 @@ package edu.java.scheduler;
 import edu.java.clients.BotClient;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
-import edu.java.dao.LinksDao;
+import edu.java.service.LinksService;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.LinkUpdate;
 import java.net.URI;
@@ -23,14 +23,17 @@ public class LinkUpdaterScheduler {
     StackOverflowClient stackOverflowClient;
 
     @Autowired
-    private LinksDao linksDao;
+    private LinksService linksService;
 
     @Autowired
     BotClient botClient;
 
     private void notifyBot(String link) {
         botClient.update(new LinkUpdate(
-            linksDao.getId(link), URI.create(link), linksDao.getLastUpdate(link), linksDao.getChatsByLink(link)
+            linksService.getId(link),
+            URI.create(link),
+            linksService.getLastUpdate(link),
+            linksService.getChatsByLink(link)
         )).subscribe();
     }
 
@@ -55,7 +58,7 @@ public class LinkUpdaterScheduler {
     @Scheduled(
         fixedDelayString = "#{@'app-edu.java.configuration.ApplicationConfig'.scheduler.interval}"
     ) public void update() {
-        linksDao.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'").forEach(
+        linksService.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'").forEach(
             this::forceUpdate
         );
     }

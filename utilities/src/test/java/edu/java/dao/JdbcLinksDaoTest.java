@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import liquibase.Contexts;
@@ -89,7 +90,9 @@ public class JdbcLinksDaoTest {
         var link = "https://example.com/test";
         var content = "This is some test content.";
 
-        var saved = linksDao.saveLink(id, link, content);
+        linksDao.saveLink(link);
+        linksDao.updateContent(id, content, new Date());
+        var saved = linksDao.saveLinkToChat(id, link, content);
 
         Assertions.assertTrue(saved);
 
@@ -106,7 +109,8 @@ public class JdbcLinksDaoTest {
         var id = 1L;
         var link = "https://example.com/test";
         var content = "This is some test content.";
-        linksDao.saveLink(id, link, content);
+        linksDao.saveLink(link);
+        linksDao.saveLinkToChat(id, link, content);
 
         var removed = linksDao.removeLink(id, link);
 
@@ -114,44 +118,6 @@ public class JdbcLinksDaoTest {
 
         var retrievedLinks = linksDao.getList(id);
         Assertions.assertEquals(List.of(), retrievedLinks);
-    }
-
-    @Test
-    public void testUpdateLink() throws SQLException {
-        var linksDao = new JdbcLinksDao(DATA);
-        var id1 = 1L;
-        var id2 = 2L;
-        var link = "https://example.com/test";
-        var content1 = "This is some test content for ID 1.";
-        var content2 = "This is some test content for ID 2.";
-        linksDao.saveLink(id1, link, content1);
-
-        var updated = linksDao.updateLink(List.of(id1, id2), link, content2);
-
-        Assertions.assertTrue(updated);
-
-        var retrievedLinks1 = linksDao.getList(id1);
-        Assertions.assertEquals(List.of(link), retrievedLinks1);
-        var retrievedContent1 = linksDao.getLastUpdate(link);
-        Assertions.assertEquals(content2, retrievedContent1);
-
-        var retrievedLinks2 = linksDao.getList(id2);
-        Assertions.assertEquals(List.of(link), retrievedLinks2);
-        var retrievedContent2 = linksDao.getLastUpdate(link);
-        Assertions.assertEquals(content2, retrievedContent2);
-    }
-
-    @Test
-    public void testRegisterChat() throws SQLException {
-        var linksDao = new JdbcLinksDao(DATA);
-        var id = 1L;
-
-        var registered = linksDao.registerChat(id);
-
-        Assertions.assertTrue(registered);
-
-        var containsChat = linksDao.containsChat(id);
-        Assertions.assertTrue(containsChat);
     }
 
     @Test
@@ -166,20 +132,6 @@ public class JdbcLinksDaoTest {
 
         var containsChat = linksDao.containsChat(id);
         Assertions.assertFalse(containsChat);
-    }
-
-    @Test
-    public void testContainsChat() throws SQLException {
-        var linksDao = new JdbcLinksDao(DATA);
-        var id = 1L;
-
-        var containsChat = linksDao.containsChat(id);
-        Assertions.assertFalse(containsChat);
-
-        linksDao.registerChat(id);
-
-        containsChat = linksDao.containsChat(id);
-        Assertions.assertTrue(containsChat);
     }
 
     @Test
@@ -202,8 +154,9 @@ public class JdbcLinksDaoTest {
         var link = "https://example.com/test";
         var update1 = "This is the first update for " + link;
         var update2 = "This is the second update for " + link;
-        linksDao.save(link, update1);
-        linksDao.save(link, update2);
+        linksDao.saveLink(link);
+        linksDao.updateContent(linksDao.getId(link), update1, new Date());
+        linksDao.updateContent(linksDao.getId(link), update2, new Date());
 
         var retrievedUpdate = linksDao.getLastUpdate(link);
 
@@ -216,7 +169,8 @@ public class JdbcLinksDaoTest {
         var link = "https://example.com/test";
         var update = "This is the update for " + link;
 
-        var saved = linksDao.save(link, update);
+        linksDao.saveLink(link);
+        var saved = linksDao.updateContent(linksDao.getId(link), update, new Date());
 
         Assertions.assertTrue(saved);
 
@@ -226,7 +180,8 @@ public class JdbcLinksDaoTest {
 
     private void saveLinks(Long id, List<String> links, JdbcLinksDao jdbcLinksDao) throws SQLException {
         for (var link : links) {
-            jdbcLinksDao.saveLink(id, link, "");
+            jdbcLinksDao.saveLink(link);
+            jdbcLinksDao.saveLinkToChat(id, link, "");
         }
     }
 

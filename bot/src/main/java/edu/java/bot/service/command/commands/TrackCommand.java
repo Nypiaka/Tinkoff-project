@@ -6,12 +6,11 @@ import edu.java.bot.clients.ScrapperClient;
 import edu.java.bot.service.command.Command;
 import edu.java.utils.Utils;
 import java.net.URI;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-@Component
+@Service
 public class TrackCommand implements Command {
 
     @Autowired
@@ -28,14 +27,14 @@ public class TrackCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update, List<String> parts) {
+    public SendMessage handle(Update update, String[] parts) {
         String ans;
-        if (parts.size() < 2) {
+        if (parts.length < 2) {
             ans = "Please, insert link to track in format \"/track {link}\".";
         } else {
-            if (Utils.validateLink(parts.get(1))) {
+            if (Utils.validateLink(parts[1])) {
                 try {
-                    scrapperClient.addLink(update.message().chat().id(), URI.create(parts.get(1))).block();
+                    scrapperClient.addLink(update.message().chat().id(), URI.create(parts[1])).block();
                     ans = "Link added successful.";
                 } catch (WebClientResponseException e) {
                     ans = "Oops! Link was not added.";

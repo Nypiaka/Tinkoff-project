@@ -11,8 +11,11 @@ import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -58,7 +61,7 @@ class CommandsTest {
         var mockedResp = Mockito.mock(Mono.class);
         Mockito.when(scrapperClient.getAllLinks(0L)).thenReturn(mockedResp);
         Mockito.when(mockedResp.block()).thenReturn(null);
-        var res = listCommand.handle(mockUpdate(""), List.of(listCommand.getCommandName()));
+        var res = listCommand.handle(mockUpdate(""), new String[] {listCommand.getCommandName()});
         Assertions.assertEquals("""
             Tracked links:
             """, res.getParameters().get("text"));
@@ -66,7 +69,7 @@ class CommandsTest {
 
     @Test
     public void helpCommandTest() {
-        var res = helpCommand.handle(mockUpdate(""), List.of(helpCommand.getCommandName()));
+        var res = helpCommand.handle(mockUpdate(""), new String[] {helpCommand.getCommandName()});
         Assertions.assertEquals("""
             List of available commands:
 
@@ -83,42 +86,32 @@ class CommandsTest {
 
     @Test
     public void startCommandTest() {
-        var res = startCommand.handle(mockUpdate(""), List.of(startCommand.getCommandName()));
+        var res = startCommand.handle(mockUpdate(""), new String[] {startCommand.getCommandName()});
         Assertions.assertEquals("""
             Welcome to the link tracking bot! For more information, type /help.""", res.getParameters().get("text"));
     }
 
     @Test
     public void trackCommandEmptyTest() {
-        var res = trackCommand.handle(mockUpdate("/track"), List.of(trackCommand.getCommandName()));
+        var res = trackCommand.handle(mockUpdate("/track"), new String[] {trackCommand.getCommandName()});
         Assertions.assertEquals("""
             Please, insert link to track in format "/track {link}".""", res.getParameters().get("text"));
     }
 
-    @Test
-    public void trackCommandSuccessTest() {
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1})
+    public void trackCommandsFormatTest(int ind) {
+        var results = List.of(Map.entry("https://github.com", """
+            Link added successful."""), Map.entry("somelink", """
+            Wrong link format!"""));
         var mockedResp = Mockito.mock(Mono.class);
-        Mockito.when(scrapperClient.addLink(0L, URI.create("https://github.com"))).thenReturn(mockedResp);
+        Mockito.when(scrapperClient.addLink(0L, URI.create(results.get(ind).getKey()))).thenReturn(mockedResp);
         Mockito.when(mockedResp.block()).thenReturn(null);
         var res = trackCommand.handle(
-            mockUpdate("/track https://github.com"),
-            List.of(trackCommand.getCommandName(), "https://github.com")
+            mockUpdate("/track " + results.get(ind).getKey()),
+            new String[] {trackCommand.getCommandName(), results.get(ind).getKey()}
         );
-        Assertions.assertEquals("""
-            Link added successful.""", res.getParameters().get("text"));
-    }
-
-    @Test
-    public void trackCommandWrongFormatTest() {
-        var mockedResp = Mockito.mock(Mono.class);
-        Mockito.when(scrapperClient.addLink(0L, URI.create("https://github.com"))).thenReturn(mockedResp);
-        Mockito.when(mockedResp.block()).thenReturn(null);
-        var res = trackCommand.handle(
-            mockUpdate("/track somelink"),
-            List.of(trackCommand.getCommandName(), "somelink")
-        );
-        Assertions.assertEquals("""
-            Wrong link format!""", res.getParameters().get("text"));
+        Assertions.assertEquals(results.get(ind).getValue(), res.getParameters().get("text"));
     }
 
     @Test
@@ -128,7 +121,7 @@ class CommandsTest {
         Mockito.when(mockedResp.block()).thenThrow(WebClientResponseException.class);
         var res = trackCommand.handle(
             mockUpdate("/track https://github.com"),
-            List.of(trackCommand.getCommandName(), "https://github.com")
+            new String[] {trackCommand.getCommandName(), "https://github.com"}
         );
         Assertions.assertEquals("""
             Oops! Link was not added.""", res.getParameters().get("text"));
@@ -136,7 +129,7 @@ class CommandsTest {
 
     @Test
     public void untrackCommandEmptyTest() {
-        var res = untrackCommand.handle(mockUpdate("/untrack"), List.of(untrackCommand.getCommandName()));
+        var res = untrackCommand.handle(mockUpdate("/untrack"), new String[] {untrackCommand.getCommandName()});
         Assertions.assertEquals("""
             Please, insert link to remove in format "/untrack {link}".""", res.getParameters().get("text"));
     }
@@ -148,7 +141,7 @@ class CommandsTest {
         Mockito.when(mockedResp.block()).thenReturn(null);
         var res = untrackCommand.handle(
             mockUpdate("/untrack https://github.com"),
-            List.of(untrackCommand.getCommandName(), "https://github.com")
+            new String[] {untrackCommand.getCommandName(), "https://github.com"}
         );
         Assertions.assertEquals("""
             Link removed successful.""", res.getParameters().get("text"));
@@ -158,7 +151,7 @@ class CommandsTest {
     public void untrackCommandWrongFormatTest() {
         var res = untrackCommand.handle(
             mockUpdate("/untrack somelink"),
-            List.of(untrackCommand.getCommandName(), "somelink")
+            new String[] {untrackCommand.getCommandName(), "somelink"}
         );
         Assertions.assertEquals("""
             Wrong link format!""", res.getParameters().get("text"));
@@ -171,7 +164,7 @@ class CommandsTest {
         Mockito.when(mockedResp.block()).thenThrow(WebClientResponseException.class);
         var res = untrackCommand.handle(
             mockUpdate("/untrack https://github.com"),
-            List.of(untrackCommand.getCommandName(), "https://github.com")
+            new String[] {untrackCommand.getCommandName(), "https://github.com"}
         );
         Assertions.assertEquals("""
             Oops! Link was not removed.""", res.getParameters().get("text"));

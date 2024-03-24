@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.sql.DataSource;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,18 +33,13 @@ public class JdbcLinksDao implements LinksDao {
     }
 
     @Transactional
-    public boolean saveLink(Long id, String link, String content) {
-        save(link, content);
-        try {
-            return jdbcTemplate.update(
-                "insert into chats_to_links (chat_id, link_id) values (?, ?)",
-                id,
-                getId(link.toLowerCase())
-            )
-                == 1;
-        } catch (DuplicateKeyException e) {
-            return true;
-        }
+    public boolean saveLinkToChat(Long id, String link, String content) {
+        return jdbcTemplate.update(
+            "insert into chats_to_links (chat_id, link_id) values (?, ?)",
+            id,
+            getId(link.toLowerCase())
+        )
+            == 1;
     }
 
     @Transactional
@@ -67,40 +61,25 @@ public class JdbcLinksDao implements LinksDao {
             id,
             link.toLowerCase()
         );
-        if (count == null) {
-            return false;
-        }
-        return count != 0;
-    }
-
-    @Transactional
-    public boolean updateLink(List<Long> id, String link, String content) {
-        var curLink = link.toLowerCase();
-        var success = true;
-        for (var i : id) {
-            success &= saveLink(i, curLink, content);
-        }
-        return success;
+        return count != null && count != 0;
     }
 
     @Transactional
     public boolean registerChat(Long id) {
-        return jdbcTemplate.update("insert into chats_to_links (chat_id) values (?)", id) > 0;
+        return true;
     }
 
     @Transactional
     public boolean removeChat(Long id) {
-        return jdbcTemplate.update("delete from chats_to_links where chat_id = ?", id) != 0;
+        jdbcTemplate.update("delete from chats_to_links where chat_id = ?", id);
+        return !containsChat(id);
     }
 
     @Transactional
     public boolean containsChat(Long id) {
         var count =
             jdbcTemplate.queryForObject("select count(*) from chats_to_links where chat_id = ?", Long.class, id);
-        if (count == null) {
-            return false;
-        }
-        return count > 0;
+        return count != null && count > 0;
     }
 
     @Transactional
@@ -135,33 +114,38 @@ public class JdbcLinksDao implements LinksDao {
     }
 
     @Transactional
-    private boolean exists(String link) {
+    public boolean exists(String link) {
         var count = jdbcTemplate.queryForObject("select count(*) from links l where l.link = ?", Long.class, link);
         return count != null && count != 0;
     }
 
     @Transactional
-    public boolean save(String link, String update) {
-        var linkToWork = link.toLowerCase();
-        try {
-            if (!exists(link)) {
-                jdbcTemplate.update("insert into links (link) values (?)", linkToWork);
-            }
-        } catch (DuplicateKeyException ignored) {
-        } finally {
-            var linkId = getId(linkToWork);
-            var now = new Date();
-            jdbcTemplate.update(
-                "insert into content_by_link (link_id, content, updated_at) values (?, ?, ?)"
-                    + " on conflict (link_id) do update set content = ?, updated_at = ?",
-                linkId,
-                update,
-                now,
-                update,
-                now
-            );
-        }
-        return exists(link);
+    public boolean saveLink(String link) {
+        jdbcTemplate.update("insert into links (link) values (?)", link);
+        return true;
+    }
+
+    @Transactional
+    public boolean updateContent(Long linkId, String update, Date date) {
+        jdbcTemplate.update(
+            "insert into content_by_link (link_id, content, updated_at) values (?, ?, ?)"
+                + " on conflict (link_id) do update set content = ?, updated_at = ?",
+            linkId,
+            update,
+            date,
+            update,
+            date
+        );
+        return true;
+    }
+
+    @Transactional
+    public List<Long> getLinksIdsByChatId(Long chatId) {
+        return jdbcTemplate.queryForList(
+            "select c.link_id from chats_to_links c where c.chat_id = ?",
+            Long.class,
+            chatId
+        );
     }
 }
 

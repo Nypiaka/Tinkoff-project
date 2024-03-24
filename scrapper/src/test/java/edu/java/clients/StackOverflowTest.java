@@ -1,7 +1,7 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.dao.JdbcLinksDao;
+import edu.java.service.JdbcLinksService;
 import java.util.ArrayList;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -16,8 +16,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 public class StackOverflowTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
-    private final JdbcLinksDao linksToUpdateDao = Mockito.mock(JdbcLinksDao.class);
-    StackOverflowClient stackOverflowClient = new StackOverflowClient(TEST_LOCALHOST_LINK, linksToUpdateDao);
+    private final JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+    StackOverflowClient stackOverflowClient = new StackOverflowClient(TEST_LOCALHOST_LINK, jdbcLinksService);
 
     @Test
     public void stackOverflowClientTest() {
@@ -26,20 +26,20 @@ public class StackOverflowTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.STACKOVERFLOW_TEST_RESPONSE)));
 
-        Mockito.when(linksToUpdateDao.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'"))
+        Mockito.when(jdbcLinksService.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'"))
             .thenReturn(
                 Set.of("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime")
             );
 
-        Mockito.when(linksToUpdateDao.getLastUpdate(
+        Mockito.when(jdbcLinksService.getLastUpdate(
                 "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"))
             .thenReturn("not updated");
 
         var result = new ArrayList<String>();
 
         Mockito.doAnswer(inv ->
-                result.add(inv.getArgument(1))).when(linksToUpdateDao)
-            .save(
+                result.add(inv.getArgument(1))).when(jdbcLinksService)
+            .saveLinkAndUpdate(
                 Mockito.eq("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"),
                 Mockito.anyString()
             );

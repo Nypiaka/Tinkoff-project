@@ -16,5 +16,5 @@ create table if not exists chats_to_links
 (
   chat_id bigint,
   link_id bigint references links (id),
-  unique (chat_id, link_id)
+  primary key (chat_id, link_id)
 );

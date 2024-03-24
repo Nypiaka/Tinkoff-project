@@ -1,8 +1,8 @@
 package edu.java.controllers;
 
-import edu.java.dao.JdbcLinksDao;
-import java.util.Objects;
+import edu.java.service.JdbcLinksService;
 import edu.java.utils.dto.ApiErrorResponse;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -17,10 +17,10 @@ public class ChatsControllerTest {
 
     @Test
     void testRegisterChat_Success() {
-        JdbcLinksDao jdbcLinksDao = Mockito.mock(JdbcLinksDao.class);
-        when(jdbcLinksDao.registerChat(TEST_ID)).thenReturn(true);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.registerChat(TEST_ID)).thenReturn(true);
 
-        ChatsController controller = new ChatsController(jdbcLinksDao);
+        ChatsController controller = new ChatsController(jdbcLinksService);
 
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.registerChat(TEST_ID);
         assertEquals(HttpStatus.OK, Objects.requireNonNull(result.block()).getStatusCode());
@@ -28,38 +28,38 @@ public class ChatsControllerTest {
 
     @Test
     void testRegisterChat_Failure() {
-        JdbcLinksDao jdbcLinksDao = Mockito.mock(JdbcLinksDao.class);
-        when(jdbcLinksDao.registerChat(TEST_ID)).thenReturn(false);
-        ChatsController controller = new ChatsController(jdbcLinksDao);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.registerChat(TEST_ID)).thenReturn(false);
+        ChatsController controller = new ChatsController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.registerChat(TEST_ID);
         assertEquals(HttpStatus.BAD_REQUEST, Objects.requireNonNull(result.block()).getStatusCode());
     }
 
     @Test
     void testRemoveChat_Success() {
-        JdbcLinksDao jdbcLinksDao = Mockito.mock(JdbcLinksDao.class);
-        when(jdbcLinksDao.removeChat(TEST_ID)).thenReturn(true);
-        ChatsController controller = new ChatsController(jdbcLinksDao);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.removeChat(TEST_ID)).thenReturn(true);
+        ChatsController controller = new ChatsController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
         assertEquals(HttpStatus.OK, result.block().getStatusCode());
     }
 
     @Test
     void testRemoveChat_NotFound() {
-        JdbcLinksDao jdbcLinksDao = Mockito.mock(JdbcLinksDao.class);
-        when(jdbcLinksDao.removeChat(TEST_ID)).thenReturn(false);
-        when(jdbcLinksDao.containsChat(TEST_ID)).thenReturn(false);
-        ChatsController controller = new ChatsController(jdbcLinksDao);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.removeChat(TEST_ID)).thenReturn(false);
+        when(jdbcLinksService.containsChat(TEST_ID)).thenReturn(false);
+        ChatsController controller = new ChatsController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
         assertEquals(HttpStatus.NOT_FOUND, result.block().getStatusCode());
     }
 
     @Test
     void testRemoveChat_BadRequest() {
-        JdbcLinksDao jdbcLinksDao = Mockito.mock(JdbcLinksDao.class);
-        when(jdbcLinksDao.removeChat(TEST_ID)).thenReturn(false);
-        when(jdbcLinksDao.containsChat(TEST_ID)).thenReturn(true);
-        ChatsController controller = new ChatsController(jdbcLinksDao);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.removeChat(TEST_ID)).thenReturn(false);
+        when(jdbcLinksService.containsChat(TEST_ID)).thenReturn(true);
+        ChatsController controller = new ChatsController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
         assertEquals(HttpStatus.BAD_REQUEST, result.block().getStatusCode());
     }
