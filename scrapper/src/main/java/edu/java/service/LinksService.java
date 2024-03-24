@@ -36,4 +36,6 @@ public interface LinksService {
     List<Long> getLinksIdsByChatId(Long chatId);
 
     ListLinksResponse getAllByChatId(Long chatId);
+
+    List<String> getAllLinksForInterval(int i);
 }

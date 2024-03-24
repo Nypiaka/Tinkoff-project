@@ -16,6 +16,7 @@ public record ApplicationConfig(
     @DefaultValue("https://api.stackexchange.com/2.3/questions/")
     String stackOverflowLink
 ) {
-    public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
+    public record Scheduler(boolean enable, @NotNull Integer updateTime, @NotNull Duration interval,
+                            @NotNull Duration forceCheckDelay) {
     }
 }
