@@ -1,6 +1,5 @@
 package edu.java.configuration;
 
-import edu.java.service.ServiceType;
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -8,7 +7,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-@ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = "app")
 public record ApplicationConfig(
     @NotNull
     Scheduler scheduler,
@@ -18,6 +17,6 @@ public record ApplicationConfig(
     String stackOverflowLink
 ) {
     public record Scheduler(boolean enable, @NotNull Integer updateTime, @NotNull Duration interval,
-                            @NotNull Duration forceCheckDelay, @NotNull ServiceType serviceType) {
+                            @NotNull Duration forceCheckDelay) {
     }
 }

@@ -1,6 +1,6 @@
 package edu.java.service;
 
-public enum ServiceType {
+public enum AccessType {
     JDBC,
     JPA,
 }

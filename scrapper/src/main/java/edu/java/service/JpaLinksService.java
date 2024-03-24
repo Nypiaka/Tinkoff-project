@@ -13,18 +13,16 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import lombok.AllArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.stereotype.Service;
 
-@Service
+@AllArgsConstructor
 public class JpaLinksService implements LinksService {
-    @Autowired JpaLinksRepository jpaLinksRepository;
-    @Autowired JpaChatRepository jpaChatRepository;
-    @Autowired JpaContentRepository jpaContentRepository;
+    JpaLinksRepository jpaLinksRepository;
+    JpaChatRepository jpaChatRepository;
+    JpaContentRepository jpaContentRepository;
 
-    @Autowired @Lazy LinkUpdaterScheduler linkUpdaterScheduler;
+    LinkUpdaterScheduler linkUpdaterScheduler;
 
     @Override
     public List<String> getList(Long id) {
