@@ -79,8 +79,8 @@ public class JpaLinksService implements LinksService {
 
     @Override
     public boolean removeChat(Long id) {
-        if (jpaChatRepository.existsById(id)) {
-            jpaChatRepository.deleteById(id);
+        if (jpaChatRepository.existsByChatId(id)) {
+            jpaChatRepository.deleteByChatId(id);
             return true;
         }
         return false;
@@ -88,7 +88,7 @@ public class JpaLinksService implements LinksService {
 
     @Override
     public boolean containsChat(Long id) {
-        return jpaChatRepository.existsById(id);
+        return jpaChatRepository.existsByChatId(id);
     }
 
     @Override
