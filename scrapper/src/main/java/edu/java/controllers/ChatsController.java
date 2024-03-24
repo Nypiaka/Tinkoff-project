@@ -1,6 +1,6 @@
 package edu.java.controllers;
 
-import edu.java.dao.LinksDao;
+import edu.java.service.LinksService;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +19,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 @RestController
 @RequiredArgsConstructor
 public class ChatsController {
-    private final LinksDao linksDao;
+    private final LinksService linksService;
 
     @ApiResponse(responseCode = "200", description = "Чат зарегестрирован")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса", content = {
@@ -29,7 +29,7 @@ public class ChatsController {
         )})
     @PostMapping("/chat-id/{id}")
     public Mono<ResponseEntity<ApiErrorResponse>> registerChat(@PathVariable Long id) {
-        var success = linksDao.registerChat(id);
+        var success = linksService.registerChat(id);
         if (success) {
             return Mono.just(ResponseEntity.ok().build());
         }
@@ -45,11 +45,11 @@ public class ChatsController {
         )})
     @DeleteMapping("/chat-id/{id}")
     public Mono<ResponseEntity<ApiErrorResponse>> removeChat(@PathVariable Long id) {
-        var success = linksDao.removeChat(id);
+        var success = linksService.removeChat(id);
         if (success) {
             return Mono.just(ResponseEntity.ok().build());
         }
-        var contains = linksDao.containsChat(id);
+        var contains = linksService.containsChat(id);
         return Mono.just(contains).flatMap(
             cont -> {
                 if (cont) {

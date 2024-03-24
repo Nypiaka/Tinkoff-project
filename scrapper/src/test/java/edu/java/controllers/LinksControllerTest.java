@@ -1,6 +1,7 @@
 package edu.java.controllers;
 
-import edu.java.dao.LinksDao;
+import edu.java.scheduler.LinkUpdaterScheduler;
+import edu.java.service.JdbcLinksService;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.AddLinkRequest;
 import edu.java.utils.dto.ApiErrorResponse;
@@ -9,25 +10,35 @@ import edu.java.utils.dto.ListLinksResponse;
 import edu.java.utils.dto.RemoveLinkRequest;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 public class LinksControllerTest {
 
     @Test
     void testGetAllLinks_Success() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        List<String> links = List.of("http://example.com", "http://example.org");
-        when(linksDao.getList(anyLong())).thenReturn(links);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.getAllByChatId(anyLong())).thenReturn(new ListLinksResponse(
+            List.of(
+                new LinkResponse(0L, URI.create("http://example.com")),
+                new LinkResponse(1L, URI.create("http://example.org"))
+            ),
+            2
+        ));
 
-        LinksController controller = new LinksController(linksDao);
+        LinksController controller = new LinksController(jdbcLinksService);
 
         Mono<ResponseEntity<?>> result = controller.getAllLinks(123L);
 
@@ -44,10 +55,10 @@ public class LinksControllerTest {
 
     @Test
     void testGetAllLinks_Empty() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.getList(anyLong())).thenReturn(List.of());
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.getAllByChatId(anyLong())).thenReturn(new ListLinksResponse(List.of(), 0));
 
-        LinksController controller = new LinksController(linksDao);
+        LinksController controller = new LinksController(jdbcLinksService);
 
         Mono<ResponseEntity<?>> result = controller.getAllLinks(123L);
 
@@ -57,24 +68,33 @@ public class LinksControllerTest {
 
     @Test
     void testAddLink_Success() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.saveLink(anyLong(), any(), any())).thenReturn(true);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
 
-        LinksController controller = new LinksController(linksDao);
+        var forceUpdated = new AtomicBoolean(false);
+
+        doAnswer(s -> {
+            forceUpdated.set(true);
+            return null;
+        }).when(jdbcLinksService).saveLinkAndUpdate(anyLong(), any(), any());
+
+        when(jdbcLinksService.saveLinkAndUpdate(anyLong(), any(), any())).thenReturn(true);
+
+        LinksController controller = new LinksController(jdbcLinksService);
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.addLink(123L, new AddLinkRequest(URI.create("http://example.com")));
 
         ResponseEntity<ApiErrorResponse> expectedEntity = ResponseEntity.ok().build();
         assertEquals(expectedEntity, result.block());
+        assertTrue(forceUpdated.get());
     }
 
     @Test
     void testAddLink_Failure() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.saveLink(anyLong(), any(), any())).thenReturn(false);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.saveLinkAndUpdate(anyLong(), any(), any())).thenReturn(false);
 
-        LinksController controller = new LinksController(linksDao);
+        LinksController controller = new LinksController(jdbcLinksService);
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.addLink(123L, new AddLinkRequest(URI.create("http://example.com")));
@@ -85,11 +105,11 @@ public class LinksControllerTest {
 
     @Test
     void testRemoveLink_Success() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.containsLink(anyLong(), any())).thenReturn(true);
-        when(linksDao.removeLink(anyLong(), any())).thenReturn(true);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.containsLink(anyLong(), any())).thenReturn(true);
+        when(jdbcLinksService.removeLink(anyLong(), any())).thenReturn(true);
 
-        LinksController controller = new LinksController(linksDao);
+        LinksController controller = new LinksController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.removeLink(123L, new RemoveLinkRequest(URI.create("http://example.com")));
 
@@ -99,10 +119,10 @@ public class LinksControllerTest {
 
     @Test
     void testRemoveLink_NotFound() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.containsLink(anyLong(), any())).thenReturn(false);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.containsLink(anyLong(), any())).thenReturn(false);
 
-        LinksController controller = new LinksController(linksDao);
+        LinksController controller = new LinksController(jdbcLinksService);
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.removeLink(123L, new RemoveLinkRequest(URI.create("http://example.com")));
@@ -113,11 +133,11 @@ public class LinksControllerTest {
 
     @Test
     void testRemoveLink_BadRequest() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.containsLink(anyLong(), any())).thenReturn(true);
-        when(linksDao.removeLink(anyLong(), any())).thenReturn(false);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.containsLink(anyLong(), any())).thenReturn(true);
+        when(jdbcLinksService.removeLink(anyLong(), any())).thenReturn(false);
 
-        LinksController controller = new LinksController(linksDao);
+        LinksController controller = new LinksController(jdbcLinksService);
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.removeLink(123L, new RemoveLinkRequest(URI.create("http://example.com")));

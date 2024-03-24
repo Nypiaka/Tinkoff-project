@@ -10,7 +10,6 @@ import edu.java.bot.service.command.commands.StartCommand;
 import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
 import edu.java.bot.service.processor.UserMessageProcessor;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -52,7 +51,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorHelpTest() {
         var update = mockUpdate("/help");
         var expected = new SendMessage(0L, "help was called");
-        when(helpCommand.handle(update, List.of("/help"))).thenReturn(expected);
+        when(helpCommand.handle(update, new String[] {"/help"})).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -61,7 +60,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorListTest() {
         var update = mockUpdate("/list");
         var expected = new SendMessage(0L, "list was called");
-        when(listCommand.handle(update, List.of("/list"))).thenReturn(expected);
+        when(listCommand.handle(update, new String[] {"/list"})).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -70,7 +69,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorStartTest() {
         var update = mockUpdate("/start");
         var expected = new SendMessage(0L, "start was called");
-        when(startCommand.handle(update, List.of("/start"))).thenReturn(expected);
+        when(startCommand.handle(update, new String[] {"/start"})).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -79,7 +78,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorTrackTest() {
         var update = mockUpdate("/track something");
         var expected = new SendMessage(0L, "track was called");
-        when(trackCommand.handle(update, List.of("/track", "something"))).thenReturn(expected);
+        when(trackCommand.handle(update, new String[] {"/track", "something"})).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }
@@ -88,7 +87,7 @@ class UserMessageProcessorTest {
     public void userMessageProcessorUntrackTest() {
         var update = mockUpdate("/untrack something");
         var expected = new SendMessage(0L, "untrack was called");
-        when(untrackCommand.handle(update, List.of("/untrack", "something"))).thenReturn(expected);
+        when(untrackCommand.handle(update, new String[] {"/untrack", "something"})).thenReturn(expected);
         var result = userMessageProcessor.process(update);
         Assertions.assertEquals(expected, result);
     }

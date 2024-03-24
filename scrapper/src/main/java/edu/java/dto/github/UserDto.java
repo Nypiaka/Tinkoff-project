@@ -7,4 +7,9 @@ import lombok.Data;
 public class UserDto {
     @JsonProperty("login")
     private String login;
+
+    @Override
+    public String toString() {
+        return login;
+    }
 }

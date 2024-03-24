@@ -1,9 +1,13 @@
 package edu.java.controllers;
 
-import edu.java.dao.LinksDao;
-import java.util.Objects;
+import edu.java.service.JdbcLinksService;
 import edu.java.utils.dto.ApiErrorResponse;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,52 +19,38 @@ public class ChatsControllerTest {
 
     private static final long TEST_ID = 123L;
 
-    @Test
-    void testRegisterChat_Success() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.registerChat(TEST_ID)).thenReturn(true);
-
-        ChatsController controller = new ChatsController(linksDao);
-
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1})
+    void testRegisterChat(int ind) {
+        var params = List.of(Map.entry(true, HttpStatus.OK), Map.entry(false, HttpStatus.BAD_REQUEST));
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.registerChat(TEST_ID)).thenReturn(params.get(ind).getKey());
+        ChatsController controller = new ChatsController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.registerChat(TEST_ID);
-        assertEquals(HttpStatus.OK, Objects.requireNonNull(result.block()).getStatusCode());
-    }
-
-    @Test
-    void testRegisterChat_Failure() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.registerChat(TEST_ID)).thenReturn(false);
-        ChatsController controller = new ChatsController(linksDao);
-        Mono<ResponseEntity<ApiErrorResponse>> result = controller.registerChat(TEST_ID);
-        assertEquals(HttpStatus.BAD_REQUEST, Objects.requireNonNull(result.block()).getStatusCode());
+        assertEquals(params.get(ind).getValue(), Objects.requireNonNull(result.block()).getStatusCode());
     }
 
     @Test
     void testRemoveChat_Success() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.removeChat(TEST_ID)).thenReturn(true);
-        ChatsController controller = new ChatsController(linksDao);
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.removeChat(TEST_ID)).thenReturn(true);
+        ChatsController controller = new ChatsController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
-        assertEquals(HttpStatus.OK, result.block().getStatusCode());
+        assertEquals(HttpStatus.OK, Objects.requireNonNull(result.block()).getStatusCode());
     }
 
-    @Test
-    void testRemoveChat_NotFound() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.removeChat(TEST_ID)).thenReturn(false);
-        when(linksDao.containsChat(TEST_ID)).thenReturn(false);
-        ChatsController controller = new ChatsController(linksDao);
+    @ParameterizedTest
+    @ValueSource(
+        ints = {0, 1}
+    )
+    void testRemoveChat_Porblems(int ind) {
+        var params = List.of(Map.entry(true, HttpStatus.BAD_REQUEST), Map.entry(false, HttpStatus.NOT_FOUND));
+        JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+        when(jdbcLinksService.removeChat(TEST_ID)).thenReturn(false);
+        when(jdbcLinksService.containsChat(TEST_ID)).thenReturn(params.get(ind).getKey());
+        ChatsController controller = new ChatsController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
-        assertEquals(HttpStatus.NOT_FOUND, result.block().getStatusCode());
+        assertEquals(params.get(ind).getValue(), result.block().getStatusCode());
     }
 
-    @Test
-    void testRemoveChat_BadRequest() {
-        LinksDao linksDao = Mockito.mock(LinksDao.class);
-        when(linksDao.removeChat(TEST_ID)).thenReturn(false);
-        when(linksDao.containsChat(TEST_ID)).thenReturn(true);
-        ChatsController controller = new ChatsController(linksDao);
-        Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
-        assertEquals(HttpStatus.BAD_REQUEST, result.block().getStatusCode());
-    }
 }
