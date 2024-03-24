@@ -3,7 +3,6 @@ package edu.java.clients;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.service.JdbcLinksService;
 import java.util.ArrayList;
-import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,11 +24,6 @@ public class StackOverflowTest {
             .willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.STACKOVERFLOW_TEST_RESPONSE)));
-
-        Mockito.when(jdbcLinksService.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'"))
-            .thenReturn(
-                Set.of("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime")
-            );
 
         Mockito.when(jdbcLinksService.getLastUpdate(
                 "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"))
