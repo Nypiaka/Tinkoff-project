@@ -30,13 +30,13 @@ public abstract class IntegrationTest {
     }
 
     @BeforeAll
-    static void beforeAll() {
+    protected static void beforeAll() {
         POSTGRES.start();
         runMigrations(POSTGRES);
     }
 
     @AfterAll
-    static void afterAll() {
+    protected static void afterAll() {
         POSTGRES.close();
     }
 
