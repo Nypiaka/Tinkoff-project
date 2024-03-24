@@ -9,12 +9,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.stereotype.Component;
 
-@Component
+@AllArgsConstructor
 public class JdbcLinksService implements LinksService {
     @Autowired
     private JdbcLinksDao jdbcLinksDao;

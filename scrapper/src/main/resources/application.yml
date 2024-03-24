@@ -1,10 +1,10 @@
 app:
+  database-access-type: jdbc
   scheduler:
     enable: true
     update-time: 5
     interval: 10s
     force-check-delay: 10s
-    service-type: jdbc
 
 spring:
   application:
