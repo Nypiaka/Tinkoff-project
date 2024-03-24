@@ -8,12 +8,15 @@ import edu.java.utils.Utils;
 import edu.java.utils.dto.LinkUpdate;
 import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 @EnableScheduling
+@ConfigurationProperties
 public class LinkUpdaterScheduler {
 
     @Autowired
@@ -27,6 +30,9 @@ public class LinkUpdaterScheduler {
 
     @Autowired
     BotClient botClient;
+
+    @Value("${app.scheduler.update-time}")
+    private Integer updateTime;
 
     private void notifyBot(String link) {
         botClient.update(new LinkUpdate(
@@ -57,8 +63,9 @@ public class LinkUpdaterScheduler {
 
     @Scheduled(
         fixedDelayString = "#{@'app-edu.java.configuration.ApplicationConfig'.scheduler.interval}"
-    ) public void update() {
-        linksService.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'").forEach(
+    )
+    public void update() {
+        linksService.getAllLinksForInterval(updateTime).forEach(
             this::forceUpdate
         );
     }

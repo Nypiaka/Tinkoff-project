@@ -131,4 +131,9 @@ public class JdbcLinksService implements LinksService {
             ind -> new LinkResponse(ids.get(ind), URI.create(links.get(ind)))
         ).toList(), links.size());
     }
+
+    @Override
+    public List<String> getAllLinksForInterval(int mins) {
+        return jdbcLinksDao.getAllLinksForInterval(mins);
+    }
 }

@@ -29,5 +29,7 @@ public interface LinksDao {
     String getLastUpdate(String link);
 
     List<Long> getLinksIdsByChatId(Long chatId);
+
+    List<String> getAllLinksForInterval(int mins);
 }
 

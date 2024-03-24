@@ -88,7 +88,7 @@ public class JdbcLinksDao implements LinksDao {
     }
 
     @Transactional
-    public Collection<String> getAllLinks(String sqlPart) {
+    public List<String> getAllLinks(String sqlPart) {
         return jdbcTemplate.queryForList(
             "select l.link from links l join content_by_link c on c.link_id = l.id " + sqlPart,
             String.class
@@ -146,6 +146,11 @@ public class JdbcLinksDao implements LinksDao {
             Long.class,
             chatId
         );
+    }
+
+    @Transactional
+    public List<String> getAllLinksForInterval(int mins) {
+        return getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '" + mins + " minute'");
     }
 }
 
