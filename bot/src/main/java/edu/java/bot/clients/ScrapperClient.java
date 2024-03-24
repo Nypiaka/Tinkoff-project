@@ -1,13 +1,11 @@
 package edu.java.bot.clients;
 
 import edu.java.utils.dto.AddLinkRequest;
-import edu.java.utils.dto.ApiErrorResponse;
 import edu.java.utils.dto.ListLinksResponse;
 import edu.java.utils.dto.RemoveLinkRequest;
 import java.net.URI;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -28,50 +26,47 @@ public class ScrapperClient {
         this.webClient = webClient;
     }
 
-    public Mono<ApiErrorResponse> registerChat(Long id) {
+    public Mono<Void> registerChat(Long id) {
         return webClient.post()
             .uri(CHAT_URI, id)
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .bodyToMono(ApiErrorResponse.class);
+            .bodyToMono(Void.class);
     }
 
-    public Mono<ApiErrorResponse> removeChat(Long id) {
+    public Mono<Void> removeChat(Long id) {
         return webClient.delete()
             .uri(CHAT_URI, id)
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .bodyToMono(ApiErrorResponse.class);
+            .bodyToMono(Void.class);
     }
 
-    public Mono<ResponseEntity<ListLinksResponse>> getAllLinks(Long id) {
+    public Mono<ListLinksResponse> getAllLinks(Long id) {
         return webClient.get()
             .uri(LINKS_URI)
             .header(ID_HEADER, String.valueOf(id))
             .retrieve()
-            .bodyToMono(ListLinksResponse.class)
-            .map(ResponseEntity::ok);
+            .bodyToMono(ListLinksResponse.class);
     }
 
-    public Mono<ResponseEntity<?>> addLink(Long id, URI link) {
+    public Mono<Void> addLink(Long id, URI link) {
         AddLinkRequest request = new AddLinkRequest(link);
         return webClient.post()
             .uri(LINKS_URI)
             .header(ID_HEADER, String.valueOf(id))
             .body(BodyInserters.fromValue(request))
             .retrieve()
-            .bodyToMono(ApiErrorResponse.class)
-            .map(ResponseEntity::ok);
+            .bodyToMono(Void.class);
     }
 
-    public Mono<ResponseEntity<ApiErrorResponse>> removeLink(Long id, URI link) {
+    public Mono<Void> removeLink(Long id, URI link) {
         RemoveLinkRequest request = new RemoveLinkRequest(link);
         return webClient.method(HttpMethod.DELETE)
             .uri(LINKS_URI)
             .header(ID_HEADER, String.valueOf(id))
             .body(BodyInserters.fromValue(request))
             .retrieve()
-            .bodyToMono(ApiErrorResponse.class)
-            .map(ResponseEntity::ok);
+            .bodyToMono(Void.class);
     }
 }

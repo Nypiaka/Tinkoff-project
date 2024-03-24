@@ -5,9 +5,9 @@ import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.service.command.Command;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class HelpCommand implements Command {
 
     @Autowired
@@ -28,7 +28,7 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update, List<String> parts) {
+    public SendMessage handle(Update update, String[] parts) {
         var builder = new StringBuilder("List of available commands:");
         builder.append(System.lineSeparator()).append(System.lineSeparator());
         commands.forEach(command ->

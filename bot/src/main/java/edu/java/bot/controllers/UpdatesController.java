@@ -1,7 +1,6 @@
 package edu.java.bot.controllers;
 
-import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.bot.LinksRefreshCheckerBot;
+import edu.java.bot.service.ChatsService;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.LinkUpdate;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,23 +17,20 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/updates")
 @RequiredArgsConstructor
 public class UpdatesController {
-    private final LinksRefreshCheckerBot linksRefreshCheckerBot;
+
+    private final ChatsService chatsService;
 
     @ApiResponse(responseCode = "200", description = "Обновление обработано")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
     @PostMapping()
     public Mono<ResponseEntity<?>> update(@RequestBody LinkUpdate request) {
-        return Mono.just(request).flatMap(req -> {
-            try {
-                for (var id : request.getTgChatIds()) {
-                    linksRefreshCheckerBot.execute(new SendMessage(
-                        id, "Updates by link: " + req.getUrl() + "\n" + req.getDescription()
-                    ));
-                }
+        try {
+            if (chatsService.updateChatsInfo(request)) {
                 return Mono.just(ResponseEntity.ok().build());
-            } catch (Exception ignored) {
-                return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
             }
-        });
+        } catch (Exception ignored) {
+            return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        }
+        return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
     }
 }

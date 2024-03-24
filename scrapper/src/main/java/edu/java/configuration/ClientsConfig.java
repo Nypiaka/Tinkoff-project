@@ -3,7 +3,7 @@ package edu.java.configuration;
 import edu.java.clients.BotClient;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
-import edu.java.dao.LinksDao;
+import edu.java.service.LinksService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,14 +13,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class ClientsConfig {
 
     @Autowired
-    LinksDao linksToUpdateDao;
+    LinksService linksService;
 
     @Bean GitHubClient gitHubClient(ApplicationConfig config) {
-        return new GitHubClient(config.githubLink(), linksToUpdateDao);
+        return new GitHubClient(config.githubLink(), linksService);
     }
 
     @Bean StackOverflowClient stackOverflowClient(ApplicationConfig config) {
-        return new StackOverflowClient(config.stackOverflowLink(), linksToUpdateDao);
+        return new StackOverflowClient(config.stackOverflowLink(), linksService);
     }
 
     @Bean BotClient botClient() {

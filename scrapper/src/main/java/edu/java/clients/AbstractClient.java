@@ -1,24 +1,28 @@
 package edu.java.clients;
 
-import edu.java.dao.LinksDao;
+import edu.java.service.LinksService;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 public abstract class AbstractClient<T> {
     private final WebClient webClient;
 
-    private final LinksDao dao;
+    private final LinksService linksService;
 
     protected abstract void log(String line);
 
     private boolean onReceipt(String s, T dto) {
-        var lastModified = dao.getLastUpdate(s);
+        if (dto == null) {
+            linksService.saveLinkAndUpdate(s, "Error in last update");
+            return false;
+        }
+        var lastModified = linksService.getLastUpdate(s);
         if (lastModified == null || !lastModified.equals(dtoToString(dto))) {
-            dao.save(s, dtoToString(dto));
+            linksService.saveLinkAndUpdate(s, dtoToString(dto));
             log("Updates by link: " + s + ": " + dtoToString(dto));
             return true;
         } else {
-            dao.save(s, dtoToString(dto));
+            linksService.saveLinkAndUpdate(s, dtoToString(dto));
             log("No updates by link: " + s + ": " + dtoToString(dto));
             return false;
         }
@@ -26,8 +30,8 @@ public abstract class AbstractClient<T> {
 
     protected Class<T> classMono;
 
-    public AbstractClient(String baseUrl, LinksDao dao) {
-        this.dao = dao;
+    public AbstractClient(String baseUrl, LinksService linksService) {
+        this.linksService = linksService;
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
     }
 
@@ -38,7 +42,10 @@ public abstract class AbstractClient<T> {
     public Mono<Boolean> fetch(String uri) {
         var link = transform(uri);
         return this.webClient.get().uri(link).retrieve().bodyToFlux(classMono).take(1)
-            .map(t -> onReceipt(uri, t)).last();
+            .map(t -> onReceipt(uri, t)).last().onErrorResume(t -> {
+                onReceipt(uri, null);
+                return Mono.just(true);
+            });
     }
 
 }

@@ -8,7 +8,6 @@ import edu.java.bot.service.command.commands.ListCommand;
 import edu.java.bot.service.command.commands.StartCommand;
 import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class UserMessageProcessor {
             var message = messages[0];
             if (commands.containsKey(message)) {
                 var command = commands.get(message);
-                return command.handle(update, Arrays.stream(messages).toList());
+                return command.handle(update, messages);
             }
             return unknownCommand(update);
         }
