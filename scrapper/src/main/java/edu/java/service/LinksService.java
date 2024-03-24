@@ -23,8 +23,6 @@ public interface LinksService {
 
     Collection<String> getAllLinks();
 
-    Collection<String> getAllLinks(String sqlPart);
-
     List<Long> getChatsByLink(String link);
 
     long getId(String link);

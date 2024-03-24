@@ -26,10 +26,9 @@ public class LinkUpdaterScheduler {
     StackOverflowClient stackOverflowClient;
 
     @Autowired
-    private LinksService linksService;
-
-    @Autowired
     BotClient botClient;
+
+    @Autowired LinksService linksService;
 
     @Value("${app.scheduler.update-time}")
     private Integer updateTime;

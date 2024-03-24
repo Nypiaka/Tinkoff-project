@@ -88,11 +88,6 @@ public class JdbcLinksService implements LinksService {
     }
 
     @Override
-    public Collection<String> getAllLinks(String sqlPart) {
-        return jdbcLinksDao.getAllLinks(sqlPart);
-    }
-
-    @Override
     public List<Long> getChatsByLink(String link) {
         return jdbcLinksDao.getChatsByLink(link);
     }

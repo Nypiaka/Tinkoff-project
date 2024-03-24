@@ -26,11 +26,6 @@ public class GithubClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.GITHUB_TEST_RESPONSE)));
 
-        Mockito.when(jdbcLinksService.getAllLinks("where c.updated_at <= now() at time zone 'MSK' - interval '5 minute'"))
-            .thenReturn(
-                Set.of("github.com/nypiaka/itmo-projects")
-            );
-
         Mockito.when(jdbcLinksService.getLastUpdate("github.com/nypiaka/itmo-projects")).thenReturn("not updated");
 
         var result = new ArrayList<String>();
