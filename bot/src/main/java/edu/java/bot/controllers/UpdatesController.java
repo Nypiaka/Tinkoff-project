@@ -24,12 +24,8 @@ public class UpdatesController {
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
     @PostMapping()
     public Mono<ResponseEntity<?>> update(@RequestBody LinkUpdate request) {
-        try {
-            if (chatsService.updateChatsInfo(request)) {
-                return Mono.just(ResponseEntity.ok().build());
-            }
-        } catch (Exception ignored) {
-            return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        if (chatsService.updateChatsInfo(request)) {
+            return Mono.just(ResponseEntity.ok().build());
         }
         return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
     }
