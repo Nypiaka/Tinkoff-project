@@ -41,7 +41,7 @@ public class LinksController {
     ) {
         return Mono.just(request).flatMap(
             req -> {
-                if (linksService.saveLinkAndUpdate(id, req.getLink().toString(), "")) {
+                if (linksService.saveLinkInChat(id, req.getLink().toString().toLowerCase())) {
                     return Mono.just(ResponseEntity.ok().build());
                 }
                 return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
@@ -59,10 +59,10 @@ public class LinksController {
     ) {
         return Mono.just(request).flatMap(
             req -> {
-                if (!linksService.containsLink(id, req.getLink().toString())) {
+                if (!linksService.containsChatAndLink(id, req.getLink().toString().toLowerCase())) {
                     return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
                 }
-                if (linksService.removeLink(id, req.getLink().toString())) {
+                if (linksService.removeLinkFromChat(id, req.getLink().toString().toLowerCase())) {
                     return Mono.just(ResponseEntity.ok().build());
                 }
                 return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));

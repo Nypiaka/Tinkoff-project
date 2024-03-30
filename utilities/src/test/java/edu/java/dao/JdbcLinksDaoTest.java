@@ -84,43 +84,6 @@ public class JdbcLinksDaoTest {
     }
 
     @Test
-    public void testSaveLink() throws SQLException {
-        var linksDao = new JdbcLinksDao(DATA);
-        var id = 1L;
-        var link = "https://example.com/test";
-        var content = "This is some test content.";
-
-        linksDao.saveLink(link);
-        linksDao.updateContent(id, content, new Date());
-        var saved = linksDao.saveLinkToChat(id, link, content);
-
-        Assertions.assertTrue(saved);
-
-        var retrievedLinks = linksDao.getList(id);
-        Assertions.assertEquals(List.of(link), retrievedLinks);
-
-        var retrievedContent = linksDao.getLastUpdate(link);
-        Assertions.assertEquals(content, retrievedContent);
-    }
-
-    @Test
-    public void testRemoveLink() throws SQLException {
-        var linksDao = new JdbcLinksDao(DATA);
-        var id = 1L;
-        var link = "https://example.com/test";
-        var content = "This is some test content.";
-        linksDao.saveLink(link);
-        linksDao.saveLinkToChat(id, link, content);
-
-        var removed = linksDao.removeLink(id, link);
-
-        Assertions.assertTrue(removed);
-
-        var retrievedLinks = linksDao.getList(id);
-        Assertions.assertEquals(List.of(), retrievedLinks);
-    }
-
-    @Test
     public void testRemoveChat() throws SQLException {
         var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
@@ -181,7 +144,7 @@ public class JdbcLinksDaoTest {
     private void saveLinks(Long id, List<String> links, JdbcLinksDao jdbcLinksDao) throws SQLException {
         for (var link : links) {
             jdbcLinksDao.saveLink(link);
-            jdbcLinksDao.saveLinkToChat(id, link, "");
+            jdbcLinksDao.saveLinkToChat(id, link);
         }
     }
 

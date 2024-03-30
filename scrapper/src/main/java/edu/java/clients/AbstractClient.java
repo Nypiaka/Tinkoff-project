@@ -13,16 +13,16 @@ public abstract class AbstractClient<T> {
 
     private boolean onReceipt(String s, T dto) {
         if (dto == null) {
-            linksService.saveLinkAndUpdate(s, "Error in last update");
+            linksService.update(s, "Error in last update");
             return false;
         }
         var lastModified = linksService.getLastUpdate(s);
         if (lastModified == null || !lastModified.equals(dtoToString(dto))) {
-            linksService.saveLinkAndUpdate(s, dtoToString(dto));
+            linksService.update(s, dtoToString(dto));
             log("Updates by link: " + s + ": " + dtoToString(dto));
             return true;
         } else {
-            linksService.saveLinkAndUpdate(s, dtoToString(dto));
+            linksService.update(s, dtoToString(dto));
             log("No updates by link: " + s + ": " + dtoToString(dto));
             return false;
         }

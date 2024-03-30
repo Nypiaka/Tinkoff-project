@@ -3,7 +3,6 @@ package edu.java.clients;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.service.JdbcLinksService;
 import java.util.ArrayList;
-import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,7 +31,7 @@ public class GithubClientTest {
 
         Mockito.doAnswer(inv ->
                 result.add(inv.getArgument(1))).when(jdbcLinksService)
-            .saveLinkAndUpdate(Mockito.eq("github.com/nypiaka/itmo-projects"), Mockito.anyString());
+            .update(Mockito.eq("github.com/nypiaka/itmo-projects"), Mockito.anyString());
 
         gitHubClient.fetch("github.com/nypiaka/itmo-projects").block();
         try {
