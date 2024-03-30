@@ -1,8 +1,12 @@
 package edu.java.dao;
 
+import edu.java.utils.dto.LinkResponse;
+import edu.java.utils.dto.ListLinksResponse;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -27,13 +31,24 @@ public class JdbcLinksDao implements LinksDao {
     }
 
     @Transactional
+    public ListLinksResponse getAllByChatId(Long chatId) {
+        var l = jdbcTemplate.query(
+            "select l.link, l.id from chats_to_links c join links l on l.id = c.link_id where c.chat_id = ?",
+            (rs, rowNum) -> Map.entry(rs.getString("link"), rs.getLong("id")),
+            chatId
+        );
+        return new ListLinksResponse(l.stream()
+            .map(pair -> new LinkResponse(pair.getValue(), URI.create(pair.getKey()))).toList(), l.size());
+    }
+
+    @Transactional
     public long getId(String link) {
         var result = jdbcTemplate.queryForList("select l.id from links l where l.link = ?", Long.class, link);
         return result.getFirst();
     }
 
     @Transactional
-    public boolean saveLinkToChat(Long id, String link, String content) {
+    public boolean saveLinkToChat(Long id, String link) {
         return jdbcTemplate.update(
             "insert into chats_to_links (chat_id, link_id) values (?, ?)",
             id,
@@ -43,7 +58,7 @@ public class JdbcLinksDao implements LinksDao {
     }
 
     @Transactional
-    public boolean removeLink(Long id, String link) {
+    public boolean removeLinkFromChat(Long id, String link) {
         return jdbcTemplate.update(
             """
                 delete from chats_to_links
@@ -54,7 +69,7 @@ public class JdbcLinksDao implements LinksDao {
     }
 
     @Transactional
-    public boolean containsLink(Long id, String link) {
+    public boolean chatContainsLink(Long id, String link) {
         var count = jdbcTemplate.queryForObject(
             "select count(*) from chats_to_links c join links l on c.link_id = l.id where c.chat_id = ? and l.link = ?",
             Long.class,

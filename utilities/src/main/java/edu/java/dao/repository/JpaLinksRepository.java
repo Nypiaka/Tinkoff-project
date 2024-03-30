@@ -17,4 +17,6 @@ public interface JpaLinksRepository extends JpaRepository<Link, Long> {
     @Transactional
     Optional<Link> findByLink(String link);
 
+    @Transactional
+    boolean existsByLink(String link);
 }

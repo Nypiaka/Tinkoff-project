@@ -33,7 +33,7 @@ public class StackOverflowTest {
 
         Mockito.doAnswer(inv ->
                 result.add(inv.getArgument(1))).when(jdbcLinksService)
-            .saveLinkAndUpdate(
+            .update(
                 Mockito.eq("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"),
                 Mockito.anyString()
             );

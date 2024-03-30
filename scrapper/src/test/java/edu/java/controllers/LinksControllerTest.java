@@ -1,6 +1,5 @@
 package edu.java.controllers;
 
-import edu.java.scheduler.LinkUpdaterScheduler;
 import edu.java.service.JdbcLinksService;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.AddLinkRequest;
@@ -15,13 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
@@ -75,9 +72,9 @@ public class LinksControllerTest {
         doAnswer(s -> {
             forceUpdated.set(true);
             return null;
-        }).when(jdbcLinksService).saveLinkAndUpdate(anyLong(), any(), any());
+        }).when(jdbcLinksService).saveLinkInChat(anyLong(), any());
 
-        when(jdbcLinksService.saveLinkAndUpdate(anyLong(), any(), any())).thenReturn(true);
+        when(jdbcLinksService.saveLinkInChat(anyLong(), any())).thenReturn(true);
 
         LinksController controller = new LinksController(jdbcLinksService);
 
@@ -92,7 +89,7 @@ public class LinksControllerTest {
     @Test
     void testAddLink_Failure() {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
-        when(jdbcLinksService.saveLinkAndUpdate(anyLong(), any(), any())).thenReturn(false);
+        when(jdbcLinksService.saveLinkInChat(anyLong(), any())).thenReturn(false);
 
         LinksController controller = new LinksController(jdbcLinksService);
 
@@ -106,8 +103,8 @@ public class LinksControllerTest {
     @Test
     void testRemoveLink_Success() {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
-        when(jdbcLinksService.containsLink(anyLong(), any())).thenReturn(true);
-        when(jdbcLinksService.removeLink(anyLong(), any())).thenReturn(true);
+        when(jdbcLinksService.removeLinkFromChat(anyLong(), any())).thenReturn(true);
+        when(jdbcLinksService.containsChatAndLink(anyLong(), any())).thenReturn(true);
 
         LinksController controller = new LinksController(jdbcLinksService);
         Mono<ResponseEntity<ApiErrorResponse>> result =
@@ -120,7 +117,7 @@ public class LinksControllerTest {
     @Test
     void testRemoveLink_NotFound() {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
-        when(jdbcLinksService.containsLink(anyLong(), any())).thenReturn(false);
+        when(jdbcLinksService.containsChatAndLink(anyLong(), any())).thenReturn(false);
 
         LinksController controller = new LinksController(jdbcLinksService);
 
@@ -134,8 +131,8 @@ public class LinksControllerTest {
     @Test
     void testRemoveLink_BadRequest() {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
-        when(jdbcLinksService.containsLink(anyLong(), any())).thenReturn(true);
-        when(jdbcLinksService.removeLink(anyLong(), any())).thenReturn(false);
+        when(jdbcLinksService.containsChatAndLink(anyLong(), any())).thenReturn(true);
+        when(jdbcLinksService.removeLinkFromChat(anyLong(), any())).thenReturn(false);
 
         LinksController controller = new LinksController(jdbcLinksService);
 

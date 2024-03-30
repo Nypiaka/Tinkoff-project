@@ -25,4 +25,7 @@ public interface JpaChatRepository extends JpaRepository<ChatsToLinks, Long> {
 
     @Transactional
     boolean existsByChatId(Long chatId);
+
+    @Transactional
+    void deleteAllByChatId(Long chatId);
 }
