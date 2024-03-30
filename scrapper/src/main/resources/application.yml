@@ -5,6 +5,14 @@ app:
     update-time: 5
     interval: 10s
     force-check-delay: 10s
+  backoff:
+    policy: const
+    max-attempts: 3
+    delay: 1s
+    supported-codes:
+      - 400
+      - 404
+      - 500
 
 spring:
   application:
