@@ -1,8 +1,12 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import edu.java.retry.BackOffPolicy;
+import edu.java.retry.Restarter;
 import edu.java.service.JdbcLinksService;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,7 +20,9 @@ public class GithubClientTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
     private final JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
-    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, jdbcLinksService);
+
+    private final Restarter restarter = new Restarter(BackOffPolicy.LINEAR, 1, Duration.ZERO, List.of());
+    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, jdbcLinksService, restarter);
 
     @Test
     public void githubClientTest() {
