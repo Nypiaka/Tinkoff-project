@@ -1,5 +1,6 @@
 package edu.java.clients;
 
+import edu.java.retry.Restarter;
 import edu.java.utils.dto.LinkUpdate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -11,8 +12,11 @@ public class BotClient {
 
     private final WebClient webClient;
 
-    public BotClient(WebClient webClient) {
+    private final Restarter restarter;
+
+    public BotClient(WebClient webClient, Restarter restarter) {
         this.webClient = webClient;
+        this.restarter = restarter;
     }
 
     public Mono<Void> update(LinkUpdate request) {
@@ -20,6 +24,7 @@ public class BotClient {
             .uri("/updates")
             .body(BodyInserters.fromValue(request))
             .retrieve()
-            .bodyToMono(Void.class);
+            .bodyToMono(Void.class)
+            .retryWhen(restarter.getRetry());
     }
 }

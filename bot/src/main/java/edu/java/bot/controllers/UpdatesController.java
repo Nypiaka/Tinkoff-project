@@ -3,6 +3,7 @@ package edu.java.bot.controllers;
 import edu.java.bot.service.ChatsService;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.LinkUpdate;
+import io.github.bucket4j.Bucket;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,14 +20,18 @@ import reactor.core.publisher.Mono;
 public class UpdatesController {
 
     private final ChatsService chatsService;
+    private final Bucket bucket;
 
     @ApiResponse(responseCode = "200", description = "Обновление обработано")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
     @PostMapping()
     public Mono<ResponseEntity<?>> update(@RequestBody LinkUpdate request) {
-        if (chatsService.updateChatsInfo(request)) {
-            return Mono.just(ResponseEntity.ok().build());
+        if (bucket.tryConsume(1)) {
+            if (chatsService.updateChatsInfo(request)) {
+                return Mono.just(ResponseEntity.ok().build());
+            }
+            return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
         }
-        return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        return Mono.just(Utils.errorRequest(HttpStatus.TOO_MANY_REQUESTS.value()));
     }
 }

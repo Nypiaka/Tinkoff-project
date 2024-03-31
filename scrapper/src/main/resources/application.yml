@@ -13,6 +13,9 @@ app:
       - 400
       - 404
       - 500
+  ratelimit:
+    capacity: 1000
+    period: 60s
 
 spring:
   application:

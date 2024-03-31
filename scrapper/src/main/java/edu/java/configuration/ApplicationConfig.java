@@ -15,6 +15,8 @@ public record ApplicationConfig(
     Scheduler scheduler,
     @NotNull
     Backoff backoff,
+    @NotNull
+    RateLimit rateLimit,
     @DefaultValue("https://api.github.com/repos/")
     String githubLink,
     @DefaultValue("https://api.stackexchange.com/2.3/questions/")
@@ -26,5 +28,9 @@ public record ApplicationConfig(
 
     public record Backoff(@NotNull BackOffPolicy policy, @NotNull Integer maxAttempts, @NotNull Duration delay,
                           @NotNull List<Integer> supportedCodes) {
+    }
+
+    public record RateLimit(@NotNull Long capacity, @NotNull Duration period) {
+
     }
 }

@@ -5,6 +5,9 @@ import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import edu.java.retry.Restarter;
 import edu.java.service.LinksService;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +39,7 @@ public class ClientsConfig {
     }
 
     @Bean BotClient botClient() {
-        return new BotClient(WebClient.builder().baseUrl("http://localhost:8090").build());
+        return new BotClient(WebClient.builder().baseUrl("http://localhost:8090").build(), restarter());
     }
 
     @Bean Restarter restarter() {
@@ -46,6 +49,15 @@ public class ClientsConfig {
             config.backoff().delay(),
             config.backoff().supportedCodes()
         );
+    }
+
+    @Bean Bucket bucket() {
+        return Bucket.builder().addLimit(
+            Bandwidth.classic(
+                config.rateLimit().capacity(),
+                Refill.intervally(config.rateLimit().capacity(), config.rateLimit().period())
+            )
+        ).build();
     }
 
 }

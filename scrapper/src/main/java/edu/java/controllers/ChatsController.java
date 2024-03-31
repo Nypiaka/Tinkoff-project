@@ -3,6 +3,7 @@ package edu.java.controllers;
 import edu.java.service.LinksService;
 import edu.java.utils.Utils;
 import edu.java.utils.dto.ApiErrorResponse;
+import io.github.bucket4j.Bucket;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,6 +21,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class ChatsController {
     private final LinksService linksService;
+    private final Bucket bucket;
 
     @ApiResponse(responseCode = "200", description = "Чат зарегестрирован")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса", content = {
@@ -29,11 +31,14 @@ public class ChatsController {
         )})
     @PostMapping("/chat-id/{id}")
     public Mono<ResponseEntity<ApiErrorResponse>> registerChat(@PathVariable Long id) {
-        var success = linksService.registerChat(id);
-        if (success) {
-            return Mono.just(ResponseEntity.ok().build());
+        if (bucket.tryConsume(1)) {
+            var success = linksService.registerChat(id);
+            if (success) {
+                return Mono.just(ResponseEntity.ok().build());
+            }
+            return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
         }
-        return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        return Mono.just(Utils.errorRequest(HttpStatus.TOO_MANY_REQUESTS.value()));
     }
 
     @ApiResponse(responseCode = "200", description = "Чат успешно удалён")
@@ -45,19 +50,22 @@ public class ChatsController {
         )})
     @DeleteMapping("/chat-id/{id}")
     public Mono<ResponseEntity<ApiErrorResponse>> removeChat(@PathVariable Long id) {
-        var success = linksService.removeChat(id);
-        if (success) {
-            return Mono.just(ResponseEntity.ok().build());
-        }
-        var contains = linksService.containsChat(id);
-        return Mono.just(contains).flatMap(
-            cont -> {
-                if (cont) {
-                    return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
-                }
-                return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
+        if (bucket.tryConsume(1)) {
+            var success = linksService.removeChat(id);
+            if (success) {
+                return Mono.just(ResponseEntity.ok().build());
             }
-        );
+            var contains = linksService.containsChat(id);
+            return Mono.just(contains).flatMap(
+                cont -> {
+                    if (cont) {
+                        return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+                    }
+                    return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
+                }
+            );
+        }
+        return Mono.just(Utils.errorRequest(HttpStatus.TOO_MANY_REQUESTS.value()));
     }
 
 }
