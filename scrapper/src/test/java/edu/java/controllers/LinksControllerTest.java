@@ -7,7 +7,10 @@ import edu.java.utils.dto.ApiErrorResponse;
 import edu.java.utils.dto.LinkResponse;
 import edu.java.utils.dto.ListLinksResponse;
 import edu.java.utils.dto.RemoveLinkRequest;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
@@ -35,7 +38,10 @@ public class LinksControllerTest {
             2
         ));
 
-        LinksController controller = new LinksController(jdbcLinksService);
+        LinksController controller = new LinksController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
 
         Mono<ResponseEntity<?>> result = controller.getAllLinks(123L);
 
@@ -55,7 +61,10 @@ public class LinksControllerTest {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
         when(jdbcLinksService.getAllByChatId(anyLong())).thenReturn(new ListLinksResponse(List.of(), 0));
 
-        LinksController controller = new LinksController(jdbcLinksService);
+        LinksController controller = new LinksController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
 
         Mono<ResponseEntity<?>> result = controller.getAllLinks(123L);
 
@@ -76,7 +85,10 @@ public class LinksControllerTest {
 
         when(jdbcLinksService.saveLinkInChat(anyLong(), any())).thenReturn(true);
 
-        LinksController controller = new LinksController(jdbcLinksService);
+        LinksController controller = new LinksController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.addLink(123L, new AddLinkRequest(URI.create("http://example.com")));
@@ -91,7 +103,10 @@ public class LinksControllerTest {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
         when(jdbcLinksService.saveLinkInChat(anyLong(), any())).thenReturn(false);
 
-        LinksController controller = new LinksController(jdbcLinksService);
+        LinksController controller = new LinksController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.addLink(123L, new AddLinkRequest(URI.create("http://example.com")));
@@ -106,7 +121,10 @@ public class LinksControllerTest {
         when(jdbcLinksService.removeLinkFromChat(anyLong(), any())).thenReturn(true);
         when(jdbcLinksService.containsChatAndLink(anyLong(), any())).thenReturn(true);
 
-        LinksController controller = new LinksController(jdbcLinksService);
+        LinksController controller = new LinksController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.removeLink(123L, new RemoveLinkRequest(URI.create("http://example.com")));
 
@@ -119,7 +137,10 @@ public class LinksControllerTest {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
         when(jdbcLinksService.containsChatAndLink(anyLong(), any())).thenReturn(false);
 
-        LinksController controller = new LinksController(jdbcLinksService);
+        LinksController controller = new LinksController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.removeLink(123L, new RemoveLinkRequest(URI.create("http://example.com")));
@@ -134,7 +155,10 @@ public class LinksControllerTest {
         when(jdbcLinksService.containsChatAndLink(anyLong(), any())).thenReturn(true);
         when(jdbcLinksService.removeLinkFromChat(anyLong(), any())).thenReturn(false);
 
-        LinksController controller = new LinksController(jdbcLinksService);
+        LinksController controller = new LinksController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
 
         Mono<ResponseEntity<ApiErrorResponse>> result =
             controller.removeLink(123L, new RemoveLinkRequest(URI.create("http://example.com")));

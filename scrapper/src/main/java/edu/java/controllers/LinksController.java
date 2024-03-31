@@ -5,6 +5,7 @@ import edu.java.utils.Utils;
 import edu.java.utils.dto.AddLinkRequest;
 import edu.java.utils.dto.ApiErrorResponse;
 import edu.java.utils.dto.RemoveLinkRequest;
+import io.github.bucket4j.Bucket;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,13 +24,17 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class LinksController {
     private final LinksService linksService;
+    private final Bucket bucket;
 
     @ApiResponse(responseCode = "200", description = "Ссылки успешно получены")
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
     @GetMapping()
     public Mono<ResponseEntity<?>> getAllLinks(@RequestHeader("Tg-Chat-Id") Long id) {
-        var result = linksService.getAllByChatId(id);
-        return Mono.just(ResponseEntity.ok().body(result));
+        if (bucket.tryConsume(1)) {
+            var result = linksService.getAllByChatId(id);
+            return Mono.just(ResponseEntity.ok().body(result));
+        }
+        return Mono.just(Utils.errorRequest(HttpStatus.TOO_MANY_REQUESTS.value()));
     }
 
     @ApiResponse(responseCode = "200", description = "Ссылка успешно добавлена")
@@ -39,14 +44,13 @@ public class LinksController {
         @RequestHeader("Tg-Chat-Id") Long id,
         @RequestBody AddLinkRequest request
     ) {
-        return Mono.just(request).flatMap(
-            req -> {
-                if (linksService.saveLinkInChat(id, req.getLink().toString().toLowerCase())) {
-                    return Mono.just(ResponseEntity.ok().build());
-                }
-                return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        if (bucket.tryConsume(1)) {
+            if (linksService.saveLinkInChat(id, request.getLink().toString().toLowerCase())) {
+                return Mono.just(ResponseEntity.ok().build());
             }
-        );
+            return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        }
+        return Mono.just(Utils.errorRequest(HttpStatus.TOO_MANY_REQUESTS.value()));
     }
 
     @ApiResponse(responseCode = "200", description = "Ссылка успешно удалена")
@@ -57,16 +61,15 @@ public class LinksController {
         @RequestHeader("Tg-Chat-Id") Long id,
         @RequestBody RemoveLinkRequest request
     ) {
-        return Mono.just(request).flatMap(
-            req -> {
-                if (!linksService.containsChatAndLink(id, req.getLink().toString().toLowerCase())) {
-                    return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
-                }
-                if (linksService.removeLinkFromChat(id, req.getLink().toString().toLowerCase())) {
-                    return Mono.just(ResponseEntity.ok().build());
-                }
-                return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        if (bucket.tryConsume(1)) {
+            if (!linksService.containsChatAndLink(id, request.getLink().toString().toLowerCase())) {
+                return Mono.just(Utils.errorRequest(HttpStatus.NOT_FOUND.value()));
             }
-        );
+            if (linksService.removeLinkFromChat(id, request.getLink().toString().toLowerCase())) {
+                return Mono.just(ResponseEntity.ok().build());
+            }
+            return Mono.just(Utils.errorRequest(HttpStatus.BAD_REQUEST.value()));
+        }
+        return Mono.just(Utils.errorRequest(HttpStatus.TOO_MANY_REQUESTS.value()));
     }
 }

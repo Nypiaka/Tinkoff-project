@@ -2,6 +2,9 @@ package edu.java.controllers;
 
 import edu.java.service.JdbcLinksService;
 import edu.java.utils.dto.ApiErrorResponse;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,7 +28,10 @@ public class ChatsControllerTest {
         var params = List.of(Map.entry(true, HttpStatus.OK), Map.entry(false, HttpStatus.BAD_REQUEST));
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
         when(jdbcLinksService.registerChat(TEST_ID)).thenReturn(params.get(ind).getKey());
-        ChatsController controller = new ChatsController(jdbcLinksService);
+        ChatsController controller = new ChatsController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.registerChat(TEST_ID);
         assertEquals(params.get(ind).getValue(), Objects.requireNonNull(result.block()).getStatusCode());
     }
@@ -34,7 +40,10 @@ public class ChatsControllerTest {
     void testRemoveChat_Success() {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
         when(jdbcLinksService.removeChat(TEST_ID)).thenReturn(true);
-        ChatsController controller = new ChatsController(jdbcLinksService);
+        ChatsController controller = new ChatsController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
         assertEquals(HttpStatus.OK, Objects.requireNonNull(result.block()).getStatusCode());
     }
@@ -48,7 +57,10 @@ public class ChatsControllerTest {
         JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
         when(jdbcLinksService.removeChat(TEST_ID)).thenReturn(false);
         when(jdbcLinksService.containsChat(TEST_ID)).thenReturn(params.get(ind).getKey());
-        ChatsController controller = new ChatsController(jdbcLinksService);
+        ChatsController controller = new ChatsController(
+            jdbcLinksService,
+            Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
+        );
         Mono<ResponseEntity<ApiErrorResponse>> result = controller.removeChat(TEST_ID);
         assertEquals(params.get(ind).getValue(), result.block().getStatusCode());
     }
