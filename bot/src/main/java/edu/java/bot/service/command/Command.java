@@ -8,10 +8,6 @@ public interface Command {
 
     String getDescription();
 
-    default boolean isApplicable(String command) {
-        return getCommandName().equals(command);
-    }
-
     SendMessage handle(Update update, String[] parts);
 
 }

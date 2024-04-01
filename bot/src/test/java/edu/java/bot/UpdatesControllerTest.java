@@ -9,14 +9,15 @@ import io.github.bucket4j.Bucket;
 import java.net.URI;
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.HttpServerErrorException;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.when;
 public class UpdatesControllerTest {
 
     @Test
-    void testUpdate_Success() {
+    void testUpdateSuccess() {
         var chatsService = Mockito.mock(ChatsService.class);
         var visited = new AtomicBoolean(false);
         doAnswer(i -> {
@@ -40,10 +41,10 @@ public class UpdatesControllerTest {
             Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
         );
 
-        Mono<ResponseEntity<?>> result =
+        var result =
             controller.update(linkUpdate);
 
-        assertEquals(HttpStatus.OK, Objects.requireNonNull(result.block()).getStatusCode());
+        assertDoesNotThrow(() -> result.block());
         assertTrue(visited.get());
     }
 
@@ -56,9 +57,15 @@ public class UpdatesControllerTest {
             Bucket.builder().addLimit(Bandwidth.simple(10, Duration.ofSeconds(10))).build()
         );
         doThrow(RuntimeException.class).when(bot).execute(any());
-        Mono<ResponseEntity<?>> result =
+        Exception er = null;
+        try {
             controller.update(new LinkUpdate(
-                123L, URI.create("http://example.com"), "description", List.of(1L)));
-        assertEquals(HttpStatus.BAD_REQUEST, Objects.requireNonNull(result.block()).getStatusCode());
+                123L, URI.create("http://example.com"), "description", List.of(1L))).block();
+        } catch (Exception e) {
+            er = e;
+        }
+        assertNotNull(er);
+        assertInstanceOf(HttpServerErrorException.class, er);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ((HttpServerErrorException) er).getStatusCode());
     }
 }
