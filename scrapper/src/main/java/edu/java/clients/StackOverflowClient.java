@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class StackOverflowClient extends AbstractClient<StackOverflowUpdatesDto> {
 
-    private final Logger logger = LoggerFactory.getLogger(GitHubClient.class);
+    private final Logger logger = LoggerFactory.getLogger(StackOverflowClient.class);
 
     private static final String BASE_URL = "https://api.stackexchange.com/2.3/questions/";
 
     @Override
-    protected void log(String line) {
-        logger.info(line);
+    protected Logger getLogger() {
+        return logger;
     }
 
     public StackOverflowClient(String baseUrl, LinksService linksService, Restarter restarter) {

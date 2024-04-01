@@ -13,6 +13,8 @@ public class HelpCommand implements Command {
     @Autowired
     private final List<Command> commands;
 
+    private String description = null;
+
     public HelpCommand(List<Command> commands) {
         this.commands = commands;
     }
@@ -29,11 +31,14 @@ public class HelpCommand implements Command {
 
     @Override
     public SendMessage handle(Update update, String[] parts) {
-        var builder = new StringBuilder("List of available commands:");
-        builder.append(System.lineSeparator()).append(System.lineSeparator());
-        commands.forEach(command ->
-            builder.append(command.getDescription())
-                .append(System.lineSeparator()).append(System.lineSeparator()));
-        return new SendMessage(update.message().chat().id(), builder.toString());
+        if (description == null) {
+            var builder = new StringBuilder("List of available commands:");
+            builder.append(System.lineSeparator()).append(System.lineSeparator());
+            commands.forEach(command ->
+                builder.append(command.getDescription())
+                    .append(System.lineSeparator()).append(System.lineSeparator()));
+            description = builder.toString();
+        }
+        return new SendMessage(update.message().chat().id(), description);
     }
 }

@@ -15,8 +15,8 @@ public class GitHubClient extends AbstractClient<GitHubUpdateDto> {
     private static final String BASE_URL = "https://api.github.com/repos/";
 
     @Override
-    protected void log(String line) {
-        logger.info(line);
+    protected Logger getLogger() {
+        return logger;
     }
 
     public GitHubClient(String baseUrl, LinksService linksService, Restarter restarter) {

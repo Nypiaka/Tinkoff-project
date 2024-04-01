@@ -12,15 +12,15 @@ import edu.java.utils.dto.ListLinksResponse;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JpaLinksService implements LinksService {
-    JpaLinksRepository jpaLinksRepository;
-    JpaChatRepository jpaChatRepository;
-    JpaContentRepository jpaContentRepository;
+    private final JpaLinksRepository jpaLinksRepository;
+    private final JpaChatRepository jpaChatRepository;
+    private final JpaContentRepository jpaContentRepository;
 
-    LinkUpdaterScheduler linkUpdaterScheduler;
+    private final LinkUpdaterScheduler linkUpdaterScheduler;
 
     @Override
     public boolean saveLinkInChat(Long chatId, String link) {
