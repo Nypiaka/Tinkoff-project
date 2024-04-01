@@ -28,7 +28,7 @@ public class ListCommand implements Command {
         var links = scrapperClient.getAllLinks(update.message().chat().id()).block();
         return new SendMessage(
             update.message().chat().id(),
-            "Tracked links:\n" + (links != null
+            "Tracked links:" + System.lineSeparator() + (links != null
                 ? Strings.join(links.getLinks(), '\n') : "")
         );
     }
