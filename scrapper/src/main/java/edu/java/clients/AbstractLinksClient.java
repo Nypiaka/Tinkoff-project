@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-public abstract class AbstractClient<T> {
+public abstract class AbstractLinksClient<T> {
     private final WebClient webClient;
 
     private final LinksService linksService;
@@ -34,7 +34,7 @@ public abstract class AbstractClient<T> {
 
     protected Class<T> classMono;
 
-    public AbstractClient(String baseUrl, LinksService linksService, Restarter restarter) {
+    public AbstractLinksClient(String baseUrl, LinksService linksService, Restarter restarter) {
         this.linksService = linksService;
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
         this.restarter = restarter;
