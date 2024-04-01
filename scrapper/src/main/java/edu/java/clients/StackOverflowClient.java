@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StackOverflowClient extends AbstractClient<StackOverflowUpdatesDto> {
+public class StackOverflowClient extends AbstractLinksClient<StackOverflowUpdatesDto> {
 
     private final Logger logger = LoggerFactory.getLogger(StackOverflowClient.class);
 

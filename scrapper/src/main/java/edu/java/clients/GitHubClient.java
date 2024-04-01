@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GitHubClient extends AbstractClient<GitHubUpdateDto> {
+public class GitHubClient extends AbstractLinksClient<GitHubUpdateDto> {
     private final Logger logger = LoggerFactory.getLogger(GitHubClient.class);
 
     private static final String BASE_URL = "https://api.github.com/repos/";
