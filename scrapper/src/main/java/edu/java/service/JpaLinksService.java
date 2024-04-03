@@ -6,7 +6,6 @@ import edu.java.dao.domain.Link;
 import edu.java.dao.repository.JpaChatRepository;
 import edu.java.dao.repository.JpaContentRepository;
 import edu.java.dao.repository.JpaLinksRepository;
-import edu.java.scheduler.LinkUpdaterScheduler;
 import edu.java.utils.dto.LinkResponse;
 import edu.java.utils.dto.ListLinksResponse;
 import java.net.URI;
@@ -20,15 +19,12 @@ public class JpaLinksService implements LinksService {
     private final JpaChatRepository jpaChatRepository;
     private final JpaContentRepository jpaContentRepository;
 
-    private final LinkUpdaterScheduler linkUpdaterScheduler;
-
     @Override
     public boolean saveLinkInChat(Long chatId, String link) {
         if (!jpaLinksRepository.existsByLink(link)) {
             jpaLinksRepository.save(new Link(link));
             var linkId = jpaLinksRepository.findByLink(link).orElseThrow().getId();
             jpaContentRepository.save(new ContentByLink(linkId, "", new Date()));
-            linkUpdaterScheduler.forceUpdate(link);
         }
         var linkId = jpaLinksRepository.findByLink(link).orElseThrow().getId();
         var alreadyExists = jpaChatRepository.existsByChatIdAndLinkId(chatId, linkId);

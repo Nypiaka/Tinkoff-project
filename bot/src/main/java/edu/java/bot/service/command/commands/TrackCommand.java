@@ -6,15 +6,14 @@ import edu.java.bot.clients.ScrapperClient;
 import edu.java.bot.service.command.Command;
 import edu.java.utils.Utils;
 import java.net.URI;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
+@RequiredArgsConstructor
 public class TrackCommand implements Command {
-
-    @Autowired
-    private ScrapperClient scrapperClient;
+    private final ScrapperClient scrapperClient;
 
     @Override
     public String getCommandName() {

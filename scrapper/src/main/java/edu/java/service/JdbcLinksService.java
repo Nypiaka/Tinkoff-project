@@ -1,22 +1,15 @@
 package edu.java.service;
 
 import edu.java.dao.JdbcLinksDao;
-import edu.java.scheduler.LinkUpdaterScheduler;
 import edu.java.utils.dto.ListLinksResponse;
 import java.util.Date;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JdbcLinksService implements LinksService {
-    @Autowired
-    private JdbcLinksDao jdbcLinksDao;
 
-    @Autowired
-    @Lazy
-    private LinkUpdaterScheduler linkUpdaterScheduler;
+    private final JdbcLinksDao jdbcLinksDao;
 
     @Override
     public boolean saveLinkInChat(Long chatId, String link) {
@@ -24,7 +17,6 @@ public class JdbcLinksService implements LinksService {
             jdbcLinksDao.saveLink(link);
             var linkId = jdbcLinksDao.getId(link);
             jdbcLinksDao.updateContent(linkId, "", new Date());
-            linkUpdaterScheduler.forceUpdate(link);
         }
         var alreadyExists = jdbcLinksDao.chatContainsLink(chatId, link);
         if (alreadyExists) {

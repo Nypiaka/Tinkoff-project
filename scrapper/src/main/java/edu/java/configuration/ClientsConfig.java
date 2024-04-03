@@ -8,19 +8,17 @@ import edu.java.service.LinksService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
+@RequiredArgsConstructor
 public class ClientsConfig {
+    private final LinksService linksService;
 
-    @Autowired
-    private LinksService linksService;
-
-    @Autowired
-    ApplicationConfig config;
+    private final ApplicationConfig config;
 
     @Bean GitHubClient gitHubClient() {
         return new GitHubClient(

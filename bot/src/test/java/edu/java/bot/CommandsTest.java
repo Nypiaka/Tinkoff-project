@@ -17,29 +17,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 class CommandsTest {
-
-    ListCommand listCommand = new ListCommand();
+    private final ScrapperClient scrapperClient = Mockito.mock(ScrapperClient.class);
+    ListCommand listCommand = new ListCommand(scrapperClient);
 
     StartCommand startCommand = new StartCommand();
 
-    TrackCommand trackCommand = new TrackCommand();
+    TrackCommand trackCommand = new TrackCommand(scrapperClient);
 
-    UntrackCommand untrackCommand = new UntrackCommand();
+    UntrackCommand untrackCommand = new UntrackCommand(scrapperClient);
 
     HelpCommand helpCommand = new HelpCommand(List.of(listCommand, startCommand, trackCommand, untrackCommand));
-
-    private final ScrapperClient scrapperClient = Mockito.mock(ScrapperClient.class);
-
-    {
-        ReflectionTestUtils.setField(listCommand, "scrapperClient", scrapperClient);
-        ReflectionTestUtils.setField(trackCommand, "scrapperClient", scrapperClient);
-        ReflectionTestUtils.setField(untrackCommand, "scrapperClient", scrapperClient);
-    }
 
     private Update mockUpdate(String expectedMessage) {
         var update = Mockito.mock(Update.class);
