@@ -13,6 +13,10 @@ public class Restarter {
     private final BackOffPolicy policy;
     private final Integer maxAttempts;
 
+    private static final Double LINEAR_JITTER_FACTOR = 0.25D;
+
+    private static final Long LINEAR_BACKOFF_MULTIPLIER = 5L;
+
     private final Duration delay;
 
     private final Set<Integer> supportedCodes;
@@ -24,11 +28,11 @@ public class Restarter {
         this.supportedCodes = new HashSet<>(supportedCodes);
     }
 
-    @SuppressWarnings("MagicNumber")
     public Retry getRetry() {
         return switch (policy) {
             case CONST -> Retry.fixedDelay(maxAttempts, delay).filter(this::supports);
-            case LINEAR -> Retry.backoff(maxAttempts, delay).jitter(0.25d).maxBackoff(delay.multipliedBy(5))
+            case LINEAR -> Retry.backoff(maxAttempts, delay).jitter(LINEAR_JITTER_FACTOR)
+                .maxBackoff(delay.multipliedBy(LINEAR_BACKOFF_MULTIPLIER))
                 .filter(this::supports);
             case EXP -> Retry.backoff(maxAttempts, delay).filter(this::supports);
         };
