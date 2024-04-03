@@ -19,7 +19,7 @@ public abstract class AbstractServiceTest extends IntegrationTest {
         var link2 = "https://example.com/2";
         var link3 = "https://example.com/3";
         var links = List.of(link1, link2, link3);
-        saveLinks(id, links, service);
+        saveLinks(id, links);
         var retrievedLinks = service.getAllByChatId(id).getLinks().stream().map(lr -> lr.getUrl().toString()).toList();
         Assertions.assertEquals(new HashSet<>(links), new HashSet<>(retrievedLinks));
     }
@@ -29,7 +29,6 @@ public abstract class AbstractServiceTest extends IntegrationTest {
         var service = getService();
         var id = 1L;
         service.registerChat(id);
-
         service.removeChat(id);
         var containsChat = service.containsChat(id);
         Assertions.assertFalse(containsChat);
@@ -41,12 +40,10 @@ public abstract class AbstractServiceTest extends IntegrationTest {
         var link = "https://example.com/test";
         var update1 = "This is the first update for " + link;
         var update2 = "This is the second update for " + link;
-        service.saveLinkInChat(1L, link);
+        saveLinkInChat(1L, link);
         service.update(link, update1);
         service.update(link, update2);
-
         var retrievedUpdate = service.getLastUpdate(link);
-
         Assertions.assertEquals(update2, retrievedUpdate);
     }
 
@@ -55,10 +52,8 @@ public abstract class AbstractServiceTest extends IntegrationTest {
         var service = getService();
         var link = "https://example.com/test";
         var update = "This is the update for " + link;
-
-        service.saveLinkInChat(1L, link);
+        saveLinkInChat(1L, link);
         service.update(link, update);
-
         var retrievedUpdate = service.getLastUpdate(link);
         Assertions.assertEquals(update, retrievedUpdate);
     }
@@ -75,10 +70,13 @@ public abstract class AbstractServiceTest extends IntegrationTest {
     public void testRemoveLinkFromChat() {
         var service = getService();
         var link = "https://example.com/test";
-        service.saveLinkInChat(1L, link);
+        saveLinkInChat(1L, link);
         var result = service.removeLinkFromChat(1L, link);
         Assertions.assertTrue(result);
+        Assertions.assertFalse(containsLinkInChat(1L, link));
     }
+
+    protected abstract boolean containsLinkInChat(Long id, String link);
 
     @Test @Transactional
     public void testGetChatsByLink() {
@@ -86,8 +84,8 @@ public abstract class AbstractServiceTest extends IntegrationTest {
         var link = "https://example.com/test";
         var chat1 = 1L;
         var chat2 = 2L;
-        service.saveLinkInChat(chat1, link);
-        service.saveLinkInChat(chat2, link);
+        saveLinkInChat(chat1, link);
+        saveLinkInChat(chat2, link);
 
         var chats = service.getChatsByLink(link);
 
@@ -102,16 +100,14 @@ public abstract class AbstractServiceTest extends IntegrationTest {
         var link = "https://example.com/test";
         var update = "This is the update for " + link;
 
-        service.saveLinkInChat(1L, link);
+        saveLinkInChat(1L, link);
         service.update(link, update);
 
         var retrievedUpdate = service.getLastUpdate(link);
         Assertions.assertEquals(update, retrievedUpdate);
     }
 
-    private void saveLinks(Long id, List<String> links, LinksService jdbcLinksService) throws SQLException {
-        for (var link : links) {
-            jdbcLinksService.saveLinkInChat(id, link);
-        }
-    }
+    protected abstract void saveLinks(Long id, List<String> links);
+
+    protected abstract void saveLinkInChat(Long id, String link);
 }
