@@ -16,7 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 @WireMockTest(httpPort = 8035)
-public class StackOverflowTest {
+public class StackOverflowClientTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
     private final JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
