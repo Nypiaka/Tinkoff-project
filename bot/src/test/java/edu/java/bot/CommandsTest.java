@@ -61,40 +61,29 @@ class CommandsTest {
     @Test
     public void helpCommandTest() {
         var res = helpCommand.handle(mockUpdate(""), new String[] {helpCommand.getCommandName()});
-        Assertions.assertEquals("""
-            List of available commands:
-
-            /list - get a list of all available links
-
-            /start - start working with a bot
-
-            /track {link} - start tracking link
-
-            /untrack {link} - stop tracking link
-
-            """, res.getParameters().get("text"));
+        Assertions.assertEquals(helpCommand.fullDescription(), res.getParameters().get("text"));
     }
 
     @Test
     public void startCommandTest() {
         var res = startCommand.handle(mockUpdate(""), new String[] {startCommand.getCommandName()});
-        Assertions.assertEquals("""
-            Welcome to the link tracking bot! For more information, type /help.""", res.getParameters().get("text"));
+        Assertions.assertEquals(startCommand.startMessage(), res.getParameters().get("text"));
     }
 
     @Test
     public void trackCommandEmptyTest() {
         var res = trackCommand.handle(mockUpdate("/track"), new String[] {trackCommand.getCommandName()});
-        Assertions.assertEquals("""
-            Please, insert link to track in format "/track {link}".""", res.getParameters().get("text"));
+        Assertions.assertEquals(trackCommand.wrongLinkFormatDescription(), res.getParameters().get("text"));
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1})
     public void trackCommandsFormatTest(int ind) {
-        var results = List.of(Map.entry("https://github.com", """
-            Link added successful."""), Map.entry("somelink", """
-            Wrong link format!"""));
+        var results =
+            List.of(
+                Map.entry("https://github.com", trackCommand.actionWithLinkSuccessful()),
+                Map.entry("somelink", trackCommand.wrongLinkFormat())
+            );
         var mockedResp = Mockito.mock(Mono.class);
         Mockito.when(scrapperClient.addLink(0L, URI.create(results.get(ind).getKey()))).thenReturn(mockedResp);
         Mockito.when(mockedResp.block()).thenReturn(null);
@@ -114,15 +103,13 @@ class CommandsTest {
             mockUpdate("/track https://github.com"),
             new String[] {trackCommand.getCommandName(), "https://github.com"}
         );
-        Assertions.assertEquals("""
-            Oops! Link was not added.""", res.getParameters().get("text"));
+        Assertions.assertEquals(trackCommand.actionWithLinkUnSuccessful(), res.getParameters().get("text"));
     }
 
     @Test
     public void untrackCommandEmptyTest() {
         var res = untrackCommand.handle(mockUpdate("/untrack"), new String[] {untrackCommand.getCommandName()});
-        Assertions.assertEquals("""
-            Please, insert link to remove in format "/untrack {link}".""", res.getParameters().get("text"));
+        Assertions.assertEquals(untrackCommand.wrongLinkFormatDescription(), res.getParameters().get("text"));
     }
 
     @Test
@@ -134,8 +121,7 @@ class CommandsTest {
             mockUpdate("/untrack https://github.com"),
             new String[] {untrackCommand.getCommandName(), "https://github.com"}
         );
-        Assertions.assertEquals("""
-            Link removed successful.""", res.getParameters().get("text"));
+        Assertions.assertEquals(untrackCommand.actionWithLinkSuccessful(), res.getParameters().get("text"));
     }
 
     @Test
@@ -144,8 +130,7 @@ class CommandsTest {
             mockUpdate("/untrack somelink"),
             new String[] {untrackCommand.getCommandName(), "somelink"}
         );
-        Assertions.assertEquals("""
-            Wrong link format!""", res.getParameters().get("text"));
+        Assertions.assertEquals(untrackCommand.wrongLinkFormat(), res.getParameters().get("text"));
     }
 
     @Test
@@ -157,8 +142,7 @@ class CommandsTest {
             mockUpdate("/untrack https://github.com"),
             new String[] {untrackCommand.getCommandName(), "https://github.com"}
         );
-        Assertions.assertEquals("""
-            Oops! Link was not removed.""", res.getParameters().get("text"));
+        Assertions.assertEquals(untrackCommand.actionWithLinkUnSuccessful(), res.getParameters().get("text"));
     }
 
 }

@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @Service
 @RequiredArgsConstructor
-public class UntrackCommand implements Command {
+public class UntrackCommand extends AbstractTrackingCommand implements Command {
     private final ScrapperClient scrapperClient;
 
     @Override
@@ -30,19 +30,24 @@ public class UntrackCommand implements Command {
         var content = update.message().text().split(" ");
         String ans;
         if (content.length < 2) {
-            ans = "Please, insert link to remove in format \"/untrack {link}\".";
+            ans = wrongLinkFormatDescription();
         } else {
             if (Utils.validateLink(parts[1])) {
                 try {
                     scrapperClient.removeLink(update.message().chat().id(), URI.create(parts[1])).block();
-                    ans = "Link removed successful.";
+                    ans = actionWithLinkSuccessful();
                 } catch (WebClientResponseException e) {
-                    ans = "Oops! Link was not removed.";
+                    ans = actionWithLinkUnSuccessful();
                 }
             } else {
-                ans = "Wrong link format!";
+                ans = wrongLinkFormat();
             }
         }
         return new SendMessage(update.message().chat().id(), ans);
+    }
+
+    @Override
+    protected String getAction() {
+        return "removed";
     }
 }

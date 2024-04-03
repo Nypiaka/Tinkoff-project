@@ -27,8 +27,7 @@ public class HelpCommand implements Command {
         return "/help - get help on working with a bot";
     }
 
-    @Override
-    public SendMessage handle(Update update, String[] parts) {
+    public String fullDescription() {
         if (description == null) {
             var builder = new StringBuilder("List of available commands:");
             builder.append(System.lineSeparator()).append(System.lineSeparator());
@@ -36,7 +35,13 @@ public class HelpCommand implements Command {
                 builder.append(command.getDescription())
                     .append(System.lineSeparator()).append(System.lineSeparator()));
             description = builder.toString();
+            return description;
         }
-        return new SendMessage(update.message().chat().id(), description);
+        return description;
+    }
+
+    @Override
+    public SendMessage handle(Update update, String[] parts) {
+        return new SendMessage(update.message().chat().id(), fullDescription());
     }
 }
