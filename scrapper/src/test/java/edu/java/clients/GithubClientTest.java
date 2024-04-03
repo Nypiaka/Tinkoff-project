@@ -7,6 +7,7 @@ import edu.java.service.JdbcLinksService;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +26,7 @@ public class GithubClientTest {
     GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, jdbcLinksService, restarter);
 
     @Test
+    @SneakyThrows
     public void githubClientTest() {
         stubFor(get(urlEqualTo("/nypiaka/itmo-projects/activity"))
             .willReturn(aResponse()
@@ -40,10 +42,7 @@ public class GithubClientTest {
             .update(Mockito.eq("github.com/nypiaka/itmo-projects"), Mockito.anyString());
 
         gitHubClient.fetch("github.com/nypiaka/itmo-projects").block();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {
-        }
+        Thread.sleep(1000);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(
             """
