@@ -3,11 +3,9 @@ package edu.java.scrapper;
 import edu.java.dao.repository.JpaChatRepository;
 import edu.java.dao.repository.JpaContentRepository;
 import edu.java.dao.repository.JpaLinksRepository;
-import edu.java.scheduler.LinkUpdaterScheduler;
 import edu.java.service.JpaLinksService;
 import edu.java.service.LinksService;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -32,16 +30,14 @@ public class JpaLinksServiceTest extends AbstractServiceTest {
     private TestEntityManager testEntityManager;
 
     @BeforeEach
-    void clear(){
+    void clear() {
         testEntityManager.clear();
         testEntityManager.flush();
     }
 
     @Override
     protected LinksService getService() {
-        return new JpaLinksService(jpaLinksRepository, jpaChatRepository, jpaContentRepository,
-            Mockito.mock(LinkUpdaterScheduler.class)
-        );
+        return new JpaLinksService(jpaLinksRepository, jpaChatRepository, jpaContentRepository);
     }
 
 }
