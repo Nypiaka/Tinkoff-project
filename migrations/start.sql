@@ -9,7 +9,8 @@ create table if not exists content_by_link
   link_id bigint references links (id),
   content varchar,
   updated_at timestamp,
-  unique(link_id)
+  unique(link_id),
+  primary key (link_id)
 );
 
 create table if not exists chats_to_links
