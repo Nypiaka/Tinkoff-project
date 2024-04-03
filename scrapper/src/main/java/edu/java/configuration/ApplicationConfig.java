@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
@@ -17,9 +16,9 @@ public record ApplicationConfig(
     Backoff backoff,
     @NotNull
     RateLimit rateLimit,
-    @DefaultValue("https://api.github.com/repos/")
+    @NotNull
     String githubLink,
-    @DefaultValue("https://api.stackexchange.com/2.3/questions/")
+    @NotNull
     String stackOverflowLink
 ) {
     public record Scheduler(boolean enable, @NotNull Integer updateTime, @NotNull Duration interval,
