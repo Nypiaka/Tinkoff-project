@@ -18,11 +18,15 @@ public class StartCommand implements Command {
         return "/start - start working with a bot";
     }
 
+    public String startMessage() {
+        return "Welcome to the link tracking bot! For more information, type /help.";
+    }
+
     @Override
     public SendMessage handle(Update update, String[] parts) {
         return new SendMessage(
             update.message().chat().id(),
-            "Welcome to the link tracking bot! For more information, type /help."
+            startMessage()
         );
     }
 }

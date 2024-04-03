@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @Service
 @RequiredArgsConstructor
-public class TrackCommand implements Command {
+public class TrackCommand extends AbstractTrackingCommand implements Command {
     private final ScrapperClient scrapperClient;
 
     @Override
@@ -29,19 +29,24 @@ public class TrackCommand implements Command {
     public SendMessage handle(Update update, String[] parts) {
         String ans;
         if (parts.length < 2) {
-            ans = "Please, insert link to track in format \"/track {link}\".";
+            ans = wrongLinkFormatDescription();
         } else {
             if (Utils.validateLink(parts[1])) {
                 try {
                     scrapperClient.addLink(update.message().chat().id(), URI.create(parts[1])).block();
-                    ans = "Link added successful.";
+                    ans = actionWithLinkSuccessful();
                 } catch (WebClientResponseException e) {
-                    ans = "Oops! Link was not added.";
+                    ans = actionWithLinkUnSuccessful();
                 }
             } else {
-                ans = "Wrong link format!";
+                ans = wrongLinkFormat();
             }
         }
         return new SendMessage(update.message().chat().id(), ans);
+    }
+
+    @Override
+    protected String getAction() {
+        return "added";
     }
 }
