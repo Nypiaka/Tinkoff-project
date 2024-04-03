@@ -16,6 +16,8 @@ app:
   ratelimit:
     capacity: 1000
     period: 60s
+  github-link: https://api.github.com/repos/
+  stackoverflow-link: https://api.stackexchange.com/2.3/questions/
 
 spring:
   application:
