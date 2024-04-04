@@ -1,9 +1,13 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.dao.LinksDao;
+import edu.java.retry.BackOffPolicy;
+import edu.java.retry.Restarter;
+import edu.java.service.JdbcLinksService;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,37 +20,37 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 public class GithubClientTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
-    private final LinksDao linksDao = Mockito.mock(LinksDao.class);
-    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, linksDao);
+    private final JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+
+    private final Restarter restarter = new Restarter(BackOffPolicy.LINEAR, 1, Duration.ZERO, List.of());
+    GitHubClient gitHubClient = new GitHubClient(TEST_LOCALHOST_LINK, jdbcLinksService, restarter);
 
     @Test
+    @SneakyThrows
     public void githubClientTest() {
         stubFor(get(urlEqualTo("/nypiaka/itmo-projects/activity"))
             .willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.GITHUB_TEST_RESPONSE)));
 
-        Mockito.when(linksDao.getAllLinks()).thenReturn(
-            Set.of("github.com/nypiaka/itmo-projects")
-        );
-
-        Mockito.when(linksDao.getLastUpdate("github.com/nypiaka/itmo-projects")).thenReturn("not updated");
+        Mockito.when(jdbcLinksService.getLastUpdate("github.com/nypiaka/itmo-projects")).thenReturn("not updated");
 
         var result = new ArrayList<String>();
 
         Mockito.doAnswer(inv ->
-                result.add(inv.getArgument(1))).when(linksDao)
-            .save(Mockito.eq("github.com/nypiaka/itmo-projects"), Mockito.anyString());
+                result.add(inv.getArgument(1))).when(jdbcLinksService)
+            .update(Mockito.eq("github.com/nypiaka/itmo-projects"), Mockito.anyString());
 
-        gitHubClient.fetch("github.com/nypiaka/itmo-projects");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {
-        }
+        gitHubClient.fetch("github.com/nypiaka/itmo-projects").block();
+        Thread.sleep(1000);
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(
-            "GitHubUpdateDto(id=16822682753, before=18234e40d98ea4e27561b6b4ebd14590fc330c39, after=604c5d02a880f690ba4e9221027721e42c7db2cd, timeStamp=2024-01-27T19:09Z, activityType=push, actor=UserDto(login=Nypiaka))",
-            result.getFirst()
+            """
+                New updates!
+                Update time: 2024-01-27T19:09Z,
+                Update type: push,
+                Update actor: Nypiaka
+                """, result.getFirst()
         );
     }
 }

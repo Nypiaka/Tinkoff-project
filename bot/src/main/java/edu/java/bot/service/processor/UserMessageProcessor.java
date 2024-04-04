@@ -8,19 +8,15 @@ import edu.java.bot.service.command.commands.ListCommand;
 import edu.java.bot.service.command.commands.StartCommand;
 import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-
 public class UserMessageProcessor {
 
     private final Map<String, Command> commands;
 
-    @Autowired
     public UserMessageProcessor(
         HelpCommand helpCommand,
         ListCommand listCommand,
@@ -41,11 +37,11 @@ public class UserMessageProcessor {
             if (update.message().text() == null) {
                 return unknownCommand(update);
             }
-            var messages = update.message().text().split(" ");
+            var messages = update.message().text().split("\\s+");
             var message = messages[0];
             if (commands.containsKey(message)) {
                 var command = commands.get(message);
-                return command.handle(update, Arrays.stream(messages).toList());
+                return command.handle(update, messages);
             }
             return unknownCommand(update);
         }

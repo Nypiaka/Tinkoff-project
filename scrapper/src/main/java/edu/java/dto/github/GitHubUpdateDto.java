@@ -18,4 +18,16 @@ public class GitHubUpdateDto {
     private String activityType;
     @JsonProperty("actor")
     private UserDto actor;
+
+    @Override
+    public String toString() {
+        return String.format(
+            """
+                New updates!
+                Update time: %s,
+                Update type: %s,
+                Update actor: %s
+                """, timeStamp, activityType, actor.toString()
+        );
+    }
 }

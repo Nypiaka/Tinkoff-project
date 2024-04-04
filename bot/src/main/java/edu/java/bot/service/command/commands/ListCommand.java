@@ -2,19 +2,16 @@ package edu.java.bot.service.command.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import edu.java.bot.clients.ScrapperClient;
 import edu.java.bot.service.command.Command;
-import edu.java.dao.LinksDao;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
-import org.jetbrains.annotations.VisibleForTesting;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class ListCommand implements Command {
-    @Autowired
-    @VisibleForTesting
-    private LinksDao linksDao;
+    private final ScrapperClient scrapperClient;
 
     @Override
     public String getCommandName() {
@@ -27,8 +24,12 @@ public class ListCommand implements Command {
     }
 
     @Override
-    public SendMessage handle(Update update, List<String> parts) {
-        var links = linksDao.getList(update.message().chat().id());
-        return new SendMessage(update.message().chat().id(), "Tracked links:\n" + Strings.join(links, '\n'));
+    public SendMessage handle(Update update, String[] parts) {
+        var links = scrapperClient.getAllLinks(update.message().chat().id()).block();
+        return new SendMessage(
+            update.message().chat().id(),
+            "Tracked links:" + System.lineSeparator() + (links != null
+                ? Strings.join(links.getLinks(), '\n') : "")
+        );
     }
 }

@@ -1,12 +1,11 @@
 package edu.java.utils;
 
 import edu.java.utils.dto.ApiErrorResponse;
-import java.util.List;
+import java.util.Arrays;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.validator.UrlValidator;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Utils {
@@ -47,15 +46,15 @@ public class Utils {
         return extractLinkToUri(link, GITHUB_IDENTIFIER);
     }
 
-    public static ResponseEntity<ApiErrorResponse> errorRequest(int code) {
+    public static ApiErrorResponse errorRequest(int code, Throwable ex) {
         var message = HttpStatus.valueOf(code).getReasonPhrase();
-        return ResponseEntity.status(code).body(new ApiErrorResponse(
+        return new ApiErrorResponse(
             message,
             String.valueOf(code),
-            message,
-            message,
-            List.of()
-        ));
+            ex.getClass().getName(),
+            ex.getMessage(),
+            Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).toList()
+        );
     }
 
     public static boolean validateLink(String link) {

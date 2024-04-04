@@ -1,9 +1,12 @@
 package edu.java.clients;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.dao.LinksDao;
+import edu.java.retry.BackOffPolicy;
+import edu.java.retry.Restarter;
+import edu.java.service.JdbcLinksService;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -13,11 +16,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 @WireMockTest(httpPort = 8035)
-public class StackOverflowTest {
+public class StackOverflowClientTest {
     public static final String TEST_LOCALHOST_LINK = "http://localhost:8035/";
 
-    private final LinksDao linksToUpdateDao = Mockito.mock(LinksDao.class);
-    StackOverflowClient stackOverflowClient = new StackOverflowClient(TEST_LOCALHOST_LINK, linksToUpdateDao);
+    private final JdbcLinksService jdbcLinksService = Mockito.mock(JdbcLinksService.class);
+    private final Restarter restarter = new Restarter(BackOffPolicy.LINEAR, 1, Duration.ZERO, List.of());
+    StackOverflowClient stackOverflowClient = new StackOverflowClient(TEST_LOCALHOST_LINK, jdbcLinksService, restarter);
 
     @Test
     public void stackOverflowClientTest() {
@@ -26,29 +30,21 @@ public class StackOverflowTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(Utils.STACKOVERFLOW_TEST_RESPONSE)));
 
-        Mockito.when(linksToUpdateDao.getAllLinks()).thenReturn(
-            Set.of("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime")
-        );
-
-        Mockito.when(linksToUpdateDao.getLastUpdate(
+        Mockito.when(jdbcLinksService.getLastUpdate(
                 "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"))
             .thenReturn("not updated");
 
         var result = new ArrayList<String>();
 
         Mockito.doAnswer(inv ->
-                result.add(inv.getArgument(1))).when(linksToUpdateDao)
-            .save(
+                result.add(inv.getArgument(1))).when(jdbcLinksService)
+            .update(
                 Mockito.eq("stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime"),
                 Mockito.anyString()
             );
 
         stackOverflowClient.fetch(
-            "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {
-        }
+            "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime").block();
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(
             "StackOverflowUpdateDto(creationDate=2023-12-21T00:00Z, timelineType=vote_aggregate, postId=31109486, owner=OwnerDto(accountId=93689, userId=256196, link=https://stackoverflow.com/users/256196/bohemian))",

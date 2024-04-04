@@ -1,8 +1,23 @@
 app:
+  database-access-type: jpa
   scheduler:
     enable: true
+    update-time: 5
     interval: 10s
     force-check-delay: 10s
+  backoff:
+    policy: const
+    max-attempts: 3
+    delay: 1s
+    supported-codes:
+      - 400
+      - 404
+      - 500
+  ratelimit:
+    capacity: 1000
+    period: 60s
+  github-link: https://api.github.com/repos/
+  stackoverflow-link: https://api.stackexchange.com/2.3/questions/
 
 spring:
   application:
@@ -12,6 +27,13 @@ spring:
     url: jdbc:postgresql:scrapper
     username: postgres
     password: postgres
+  liquibase:
+    enabled: false
+  jpa:
+    hibernate.ddl-auto=validate
+    show-sql=true
+    properties.hibernate.format_sql=true
+    properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL81Dialect
 
 server:
   port: 8080
