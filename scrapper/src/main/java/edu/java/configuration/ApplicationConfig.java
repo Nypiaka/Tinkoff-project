@@ -1,6 +1,7 @@
 package edu.java.configuration;
 
 import edu.java.retry.BackOffPolicy;
+import edu.java.service.TransferType;
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
 import java.util.List;
@@ -19,7 +20,12 @@ public record ApplicationConfig(
     @NotNull
     String githubLink,
     @NotNull
-    String stackOverflowLink
+    String stackOverflowLink,
+    @NotNull
+    Kafka kafka,
+
+    @NotNull
+    TransferType linkUpdateTransferType
 ) {
     public record Scheduler(boolean enable, @NotNull Integer updateTime, @NotNull Duration interval,
                             @NotNull Duration forceCheckDelay) {
@@ -31,5 +37,8 @@ public record ApplicationConfig(
 
     public record RateLimit(@NotNull Long capacity, @NotNull Duration period) {
 
+    }
+
+    public record Kafka(@NotNull String addresses, @NotNull String linkUpdateTopic) {
     }
 }
