@@ -1,5 +1,10 @@
 app:
   telegram-token: unset
+  kafka:
+    addresses: "localhost:29091,localhost:29092,localhost:29093"
+    link-update-topic: "messages.links_update"
+    link-update-group: "messages-group"
+    concurrency: "1"
   ratelimit:
     capacity: 1000
     period: 60s

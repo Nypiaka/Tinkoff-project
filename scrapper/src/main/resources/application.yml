@@ -18,6 +18,10 @@ app:
     period: 60s
   github-link: https://api.github.com/repos/
   stackoverflow-link: https://api.stackexchange.com/2.3/questions/
+  link-update-transfer-type: kafka
+  kafka:
+    addresses: "localhost:29091,localhost:29092,localhost:29093"
+    link-update-topic: "messages.links_update"
 
 spring:
   application:
