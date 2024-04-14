@@ -8,6 +8,7 @@ import edu.java.bot.service.command.commands.ListCommand;
 import edu.java.bot.service.command.commands.StartCommand;
 import edu.java.bot.service.command.commands.TrackCommand;
 import edu.java.bot.service.command.commands.UntrackCommand;
+import io.micrometer.core.instrument.Metrics;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,9 @@ public class UserMessageProcessor {
             var message = messages[0];
             if (commands.containsKey(message)) {
                 var command = commands.get(message);
-                return command.handle(update, messages);
+                var res = command.handle(update, messages);
+                Metrics.counter("bot.telegram.processed", "command", command.getCommandName()).increment();
+                return res;
             }
             return unknownCommand(update);
         }
