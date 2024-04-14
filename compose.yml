@@ -109,8 +109,30 @@ services:
     networks:
       - backend
 
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    user: "1000:1000"
+    command:
+      - --config.file=/prometheus/prometheus.yml
+    volumes:
+      - ./prometheus:/prometheus/
+    networks:
+      - backend
+
+  grafana:
+      image: grafana/grafana-oss
+      ports:
+        - "3000:3000"
+      volumes:
+        - grafana:/var/lib/grafana
+      networks:
+        - backend
+
 volumes:
   postgresql: { }
+  grafana : { }
 
 networks:
   backend: { }
