@@ -14,11 +14,6 @@ spring:
     name: bot
   jackson:
     time-zone: UTC
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql:scrapper
-    username: postgres
-    password: postgres
 
 server:
   port: 8090
