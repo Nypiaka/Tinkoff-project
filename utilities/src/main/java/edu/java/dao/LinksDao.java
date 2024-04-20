@@ -1,5 +1,8 @@
 package edu.java.dao;
 
+import edu.java.utils.dto.ListLinksResponse;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public interface LinksDao {
@@ -24,5 +27,15 @@ public interface LinksDao {
     String getLastUpdate(String link);
 
     List<String> getAllLinksForInterval(int mins);
+
+    boolean exists(String link);
+
+    boolean saveLink(String link);
+
+    boolean updateContent(Long linkId, String s, Date date);
+
+    ListLinksResponse getAllByChatId(Long id);
+
+    Collection<String> getAllLinks();
 }
 
