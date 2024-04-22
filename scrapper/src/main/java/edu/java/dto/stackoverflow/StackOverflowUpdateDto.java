@@ -18,4 +18,15 @@ public class StackOverflowUpdateDto {
     @JsonProperty("owner")
     private OwnerDto owner;
 
+    @Override
+    public String toString() {
+        return String.format(
+            """
+                New updates!
+                Update time: %s,
+                Update type: %s,
+                Update actor: %s
+                """, creationDate, timelineType, owner.getLink()
+        );
+    }
 }
