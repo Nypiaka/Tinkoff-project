@@ -25,13 +25,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-public abstract class AbstractDaoTest {
+public class JdbcLinksDaoTest {
 
     private static JdbcDatabaseContainer<?> POSTGRES;
 
-    protected abstract LinksDao getDao() throws SQLException;
-
-    protected static DriverManagerDataSource DATA;
+    private static DriverManagerDataSource DATA;
 
     private static void runMigrations(JdbcDatabaseContainer<?> c) {
         try {
@@ -72,13 +70,13 @@ public abstract class AbstractDaoTest {
 
     @Test
     public void testGetList() throws SQLException {
-        var linksDao = getDao();
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
         var link1 = "https://example.com/1";
         var link2 = "https://example.com/2";
         var link3 = "https://example.com/3";
         var links = List.of(link1, link2, link3);
-        saveLinks(id, links, getDao());
+        saveLinks(id, links, linksDao);
 
         var retrievedLinks = linksDao.getList(id);
 
@@ -87,7 +85,7 @@ public abstract class AbstractDaoTest {
 
     @Test
     public void testRemoveChat() throws SQLException {
-        var linksDao = getDao();
+        var linksDao = new JdbcLinksDao(DATA);
         var id = 1L;
         linksDao.registerChat(id);
 
@@ -101,7 +99,7 @@ public abstract class AbstractDaoTest {
 
     @Test
     public void testGetAllLinks() throws SQLException {
-        var linksDao = getDao();
+        var linksDao = new JdbcLinksDao(DATA);
         var link1 = "https://example.com/1";
         var link2 = "https://example.com/2";
         var link3 = "https://example.com/3";
@@ -115,7 +113,7 @@ public abstract class AbstractDaoTest {
 
     @Test
     public void testGetLastUpdate() throws SQLException {
-        var linksDao = getDao();
+        var linksDao = new JdbcLinksDao(DATA);
         var link = "https://example.com/test";
         var update1 = "This is the first update for " + link;
         var update2 = "This is the second update for " + link;
@@ -130,7 +128,7 @@ public abstract class AbstractDaoTest {
 
     @Test
     public void testSave() throws SQLException {
-        var linksDao = getDao();
+        var linksDao = new JdbcLinksDao(DATA);
         var link = "https://example.com/test";
         var update = "This is the update for " + link;
 
@@ -143,10 +141,10 @@ public abstract class AbstractDaoTest {
         Assertions.assertEquals(update, retrievedUpdate);
     }
 
-    private void saveLinks(Long id, List<String> links, LinksDao linksDao) throws SQLException {
+    private void saveLinks(Long id, List<String> links, JdbcLinksDao jdbcLinksDao) throws SQLException {
         for (var link : links) {
-            linksDao.saveLink(link);
-            linksDao.saveLinkToChat(id, link);
+            jdbcLinksDao.saveLink(link);
+            jdbcLinksDao.saveLinkToChat(id, link);
         }
     }
 

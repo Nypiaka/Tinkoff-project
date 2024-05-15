@@ -1,5 +1,5 @@
 app:
-  database-access-type: jooq
+  database-access-type: jpa
   scheduler:
     enable: true
     update-time: 5
