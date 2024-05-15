@@ -47,12 +47,8 @@ public class StackOverflowClientTest {
             "stackoverflow.com/questions/15250928/how-to-change-springs-scheduled-fixeddelay-at-runtime").block();
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(
-            """
-                New updates!
-                Update time: 2023-12-21T00:00Z,
-                Update type: vote_aggregate,
-                Update actor: https://stackoverflow.com/users/256196/bohemian
-                """, result.getFirst()
+            "StackOverflowUpdateDto(creationDate=2023-12-21T00:00Z, timelineType=vote_aggregate, postId=31109486, owner=OwnerDto(accountId=93689, userId=256196, link=https://stackoverflow.com/users/256196/bohemian))",
+            result.getFirst()
         );
     }
 }
